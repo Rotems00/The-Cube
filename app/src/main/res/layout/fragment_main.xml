@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2EABAD"
+    tools:context=".View.MainFragment">
+
+    <Button
+        android:id="@+id/activity_main_button_login"
+        android:layout_width="286dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="184dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@null"
+        android:fontFamily="@font/pt_sans_bold"
+        android:includeFontPadding="false"
+        android:text="Login"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/activity_main_edit_text_joinus"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="397dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="20dp"
+        android:background="@null"
+        android:ems="10"
+        android:fontFamily="@font/pt_sans_bold"
+        android:foregroundGravity="center"
+        android:gravity="bottom|center"
+        android:inputType="text"
+        android:text="Join us and find the best dishes world wide!"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/activity_main_button_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/activity_main_button_create_new_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="100dp"
+        android:background="@android:color/transparent"
+        android:fontFamily="@font/pt_sans_bold"
+        android:text="Create New Account"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_main_button_login" />
+
+    <ImageView
+        android:id="@+id/activity_main_image_chef"
+        android:layout_width="500dp"
+        android:layout_height="300dp"
+        android:layout_marginBottom="14dp"
+        app:layout_constraintBottom_toTopOf="@+id/activity_main_edit_text_joinus"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/cheff" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

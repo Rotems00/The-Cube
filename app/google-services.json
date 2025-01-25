@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "268996189689",
+    "project_id": "the-cube-34c3c",
+    "storage_bucket": "the-cube-34c3c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268996189689:android:a7b979fd0ed5fdd413f128",
+        "android_client_info": {
+          "package_name": "com.example.thecube"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp-0Tdki8afbLWCeheE46WvGp7U1dmgZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
