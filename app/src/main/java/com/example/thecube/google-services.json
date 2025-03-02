@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "396635178269",
+    "project_id": "the-cube-5c1e0",
+    "storage_bucket": "the-cube-5c1e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396635178269:android:f97377f49df0cc03f74df4",
+        "android_client_info": {
+          "package_name": "com.example.thecube"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "396635178269-kog9n42qbvvnoa9vfcqhugsqtegngp3a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeHtQpEuaJr8br7aXl1TrrUOvEz8ThkFE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "396635178269-kog9n42qbvvnoa9vfcqhugsqtegngp3a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

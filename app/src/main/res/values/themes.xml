@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.TheCube" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Base.Theme.TheCube" parent="Theme.Material3.Light.NoActionBar">
+
         <item name="buttonStyle">@style/CustomButton</item>
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
@@ -9,8 +10,12 @@
     <style name="Theme.TheCube" parent="Base.Theme.TheCube" />
 
     <style name="CustomButton" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@null</item> <!-- Disable default tint -->
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:background">@drawable/rounded_button</item> <!-- Use custom drawable -->
         <item name="android:textColor">#FFFFFF</item> <!-- White text -->
+    </style>
+    <style name="ShapeAppearanceOverlay.Material3.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item> <!-- Makes the shape circular -->
     </style>
 </resources>
