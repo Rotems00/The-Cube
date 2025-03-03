@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Removed the erroneous ViewModel.MainActivity entry -->
+
 
         <meta-data
             android:name="preloaded_fonts"

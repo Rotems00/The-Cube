@@ -12,5 +12,6 @@ data class Dish(
     val imageUrl : String,
     val countLikes: Int,
     val ingredients: String,
+    val country: String
 
 )

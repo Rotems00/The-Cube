@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.thecube.R
 import com.example.thecube.databinding.FragmentSignUpBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -33,6 +35,7 @@ class SignUpFragment : Fragment() {
             val email = binding.editTextEmail.text.toString().trim()
             val password = binding.editTextPassword.text.toString().trim()
 
+
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -59,6 +62,9 @@ class SignUpFragment : Fragment() {
                         Toast.makeText(requireContext(), "Sign up failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
+        }
+        binding.textViewAlreadyHaveAccount.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpFragment_to_signInFragment)
         }
     }
 

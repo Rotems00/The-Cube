@@ -8,13 +8,35 @@
         android:id="@+id/signInFragment"
         android:name="com.example.thecube.ui.auth.SignInFragment"
         android:label="Sign In"
-        tools:layout="@layout/fragment_sign_in" />
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.thecube.ui.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_dishCarouselFragment"
+            app:destination="@id/dishCarouselFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/DishCarouselFragment"
+        android:name="com.example.thecube.ui.DishCarouselFragment"
+        android:label="Dish Carousel"
+        tools:layout="@layout/fragment_dish_carousel" />
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.thecube.ui.auth.SignUpFragment"
         android:label="Sign Up"
-        tools:layout="@layout/fragment_sign_up" />
-
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
     <fragment
         android:id="@+id/dishCarouselFragment"
         android:name="com.example.thecube.ui.DishCarouselFragment"

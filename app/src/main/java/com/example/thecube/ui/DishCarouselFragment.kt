@@ -1,25 +1,28 @@
 package com.example.thecube.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager2.widget.ViewPager2
-import com.example.thecube.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.thecube.databinding.FragmentDishCarouselBinding
+import com.example.thecube.model.Dish
+import com.example.thecube.repository.LocalRecipeRepository
 import com.example.thecube.viewModel.DishViewModel
-import com.example.thecube.viewModel.RecipeViewModel
 
-class DishCarouselFragment:Fragment(){
+class DishCarouselFragment : Fragment() {
+
     private var _binding: FragmentDishCarouselBinding? = null
     private val binding get() = _binding!!
-    private lateinit var recipeViewModel: RecipeViewModel
+
     private lateinit var dishAdapter: DishAdapter
     private lateinit var dishViewModel: DishViewModel
-    private lateinit var viewPager: ViewPager2
 
+    // This variable will store the selected country's name
+    private var selectedCountry: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,19 +34,28 @@ class DishCarouselFragment:Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recipeViewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
+        // Retrieve the passed country name from the bundle
+        selectedCountry = arguments?.getString("country")
+        Log.d("DishCarouselFragment", "Selected country: $selectedCountry")
 
-        // Initialize the adapter (ListAdapter based)
+        // Initialize your adapter and RecyclerView (or ViewPager2) for the carousel.
         dishAdapter = DishAdapter()
-        binding.viewPagerDishCarousel.adapter = dishAdapter
+        binding.recyclerViewDishes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerViewDishes.adapter = dishAdapter
 
-        // Observe the list of dishes from the remote API
-        recipeViewModel.dishes.observe(viewLifecycleOwner) { dishList ->
-            dishAdapter.submitList(dishList)
+        // Load the local dishes for the selected country.
+        loadDishesForCountry()
+    }
+
+    private fun loadDishesForCountry() {
+        if (selectedCountry != null) {
+            // Filter the local dishes for the selected country
+            val localDishes: List<Dish> = LocalRecipeRepository.getDishesByCountry(selectedCountry!!)
+            Log.d("DishCarouselFragment", "Found ${localDishes.size} dishes for $selectedCountry")
+            dishAdapter.submitList(localDishes)
+        } else {
+            Log.e("DishCarouselFragment", "No country provided!")
         }
-
-        // Load multiple random dishes into the carousel
-        recipeViewModel.loadRandomMeals(count = 5)
     }
 
     override fun onDestroyView() {
