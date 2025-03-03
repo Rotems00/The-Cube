@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/signUpFragment">
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.example.thecube.View.MainFragment"
-        android:label="Main Fragment"
-        tools:layout="@layout/fragment_main" >
+        android:id="@+id/signInFragment"
+        android:name="com.example.thecube.ui.auth.SignInFragment"
+        android:label="Sign In"
+        tools:layout="@layout/fragment_sign_in">
         <action
-            android:id="@+id/action_mainFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_signInFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.thecube.ui.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_dishCarouselFragment"
+            app:destination="@id/dishCarouselFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.thecube.View.LoginFragment"
-        android:label="LoginFragment"
-        tools:layout="@layout/fragment_login" />
+        android:id="@+id/DishCarouselFragment"
+        android:name="com.example.thecube.ui.DishCarouselFragment"
+        android:label="Dish Carousel"
+        tools:layout="@layout/fragment_dish_carousel" />
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.thecube.ui.auth.SignUpFragment"
+        android:label="Sign Up"
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dishCarouselFragment"
+        android:name="com.example.thecube.ui.DishCarouselFragment"
+        android:label="Dish Carousel"
+        tools:layout="@layout/fragment_dish_carousel" />
 
 </navigation>

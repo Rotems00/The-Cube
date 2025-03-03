@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "396635178269-vupniprros8ql3hfphqeu9spvq18ps80.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.thecube",
-            "certificate_hash": "662dd681cc0cb6d71887533d0a61e5427e7caa71"
-          }
-        },
-        {
           "client_id": "396635178269-kog9n42qbvvnoa9vfcqhugsqtegngp3a.apps.googleusercontent.com",
           "client_type": 3
         }
