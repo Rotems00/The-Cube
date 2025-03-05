@@ -1,3 +1,14 @@
+configurations.all {
+    exclude(group = "com.linkedin.android.litr", module = "litr")
+}
+
+dependencies {
+    implementation("com.cloudinary:cloudinary-android:1.29.0")
+    // your other dependencies
+}
+
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -47,7 +58,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)     // Room coroutine and LiveData support
     implementation (libs.androidx.room.runtime)
     implementation(libs.firebase.database.ktx)
-    implementation (libs.material.v190)
     implementation(libs.firebase.auth.ktx)
     kapt (libs.androidx.room.compiler)
     implementation (libs.androidx.lifecycle.livedata.ktx)
@@ -63,12 +73,16 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore)
-    implementation (libs.material.v170)
     implementation (libs.androidx.material3)
     implementation(libs.glide)
     kapt(libs.compiler)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+
+
+
+
 
 
     testImplementation(libs.junit)
