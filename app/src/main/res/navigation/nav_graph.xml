@@ -4,6 +4,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/signUpFragment">
+
+    <!-- Sign Up Fragment -->
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.thecube.ui.auth.SignUpFragment"
+        android:label="Sign Up"
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
+
+    <!-- Sign In Fragment -->
     <fragment
         android:id="@+id/signInFragment"
         android:name="com.example.thecube.ui.auth.SignInFragment"
@@ -13,6 +26,8 @@
             android:id="@+id/action_signInFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+
+    <!-- Home Fragment -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.thecube.ui.HomeFragment"
@@ -23,24 +38,29 @@
             app:destination="@id/dishCarouselFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/DishCarouselFragment"
-        android:name="com.example.thecube.ui.DishCarouselFragment"
-        android:label="Dish Carousel"
-        tools:layout="@layout/fragment_dish_carousel" />
-    <fragment
-        android:id="@+id/signUpFragment"
-        android:name="com.example.thecube.ui.auth.SignUpFragment"
-        android:label="Sign Up"
-        tools:layout="@layout/fragment_sign_up">
-        <action
-            android:id="@+id/action_signUpFragment_to_signInFragment"
-            app:destination="@id/signInFragment" />
-    </fragment>
+    <!-- Dish Carousel Fragment -->
     <fragment
         android:id="@+id/dishCarouselFragment"
         android:name="com.example.thecube.ui.DishCarouselFragment"
         android:label="Dish Carousel"
         tools:layout="@layout/fragment_dish_carousel" />
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.thecube.ui.ProfileFragment"
+        android:label="Profile" />
+
+    <!-- Favourite Dishes Fragment -->
+    <fragment
+        android:id="@+id/favouriteFragment"
+        android:name="com.example.thecube.ui.FavouriteFragment"
+        android:label="Favourite Dishes" />
+
+    <!-- Add Dish Fragment -->
+    <fragment
+        android:id="@+id/addDishFragment"
+        android:name="com.example.thecube.ui.AddDishFragment"
+        android:label="Add Dish" />
 
 </navigation>

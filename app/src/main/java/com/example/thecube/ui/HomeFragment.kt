@@ -110,6 +110,18 @@ class HomeFragment : Fragment() {
             }
         }
     }
+    fun regenerateCube() {
+        // Define the number of extra spins and a random additional angle
+        val extraSpins = 5
+        val randomAngle = kotlin.random.Random.nextFloat() * 360
+        val totalRotation = extraSpins * 360 + randomAngle
+
+        // Animate the cubeImageView (make sure your view's ID is correct)
+        val animator = ObjectAnimator.ofFloat(binding.cubeImageView, "rotationY", 0f, totalRotation)
+        animator.duration = 3000  // Duration in milliseconds
+        animator.start()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

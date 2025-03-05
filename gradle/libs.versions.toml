@@ -1,9 +1,11 @@
 [versions]
 agp = "8.7.3"
+cloudinaryAndroid = "1.29.0"
 converterGson = "2.9.0"
 firebaseBom = "33.8.0"
 glide = "4.13.0"
-googleMaterial = "1.9.0"
+googleMaterial = "1.12.0"
+googleMaterialVersion = "1.12.0"
 googleServices = "4.4.2"
 kotlin = "1.9.24"
 coreKtx = "1.15.0"
@@ -19,7 +21,7 @@ constraintlayout = "2.2.0"
 googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.1"
 material3 = "1.3.1"
-materialVersion = "1.7.0"
+materialVersion = "1.12.0"
 navigationFragmentKtx = "2.8.6"
 retrofit = "2.9.0"
 roomRuntime = "2.6.1"
@@ -38,6 +40,7 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinaryAndroid" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -54,6 +57,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 material-v170 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+material-v180 = { module = "com.google.android.material:material", version.ref = "googleMaterialVersion" }
 material-v190 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_profile"
+        android:icon="@drawable/person_icon"
+        android:title="My Profile" />
+    <item
+        android:id="@+id/menu_favourite"
+        android:icon="@drawable/fav_icon"
+    android:title="Favourite Dishes" />
+    <item
+        android:id="@+id/menu_regenerate"
+        android:icon="@drawable/renew"
+    android:title="Regenerate Cube" />
+    <item
+        android:id="@+id/menu_add_dish"
+        android:icon="@drawable/add_circle"
+    android:title="Add Dish" />
+</menu>
