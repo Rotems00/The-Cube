@@ -1,55 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/add_dish_scroll"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/addDishRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- Dish Name Input -->
-        <EditText
-            android:id="@+id/edit_text_dish_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Dish Name"
-            android:minHeight="48dp"
-            android:padding="12dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    android:padding="16dp"
+    tools:context=".ui.AddDishFragment">
 
 
-        <!-- Dish Description Input -->
-        <EditText
-            android:id="@+id/edit_text_dish_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:padding="12dp"
-            android:hint="Dish Description"
-            android:inputType="textMultiLine"
-            app:layout_constraintTop_toBottomOf="@id/edit_text_dish_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
 
 
-        <!-- Add more fields as needed, for example, ingredients or an image picker -->
+    <!-- ImageView to upload/select dish image -->
+    <ImageView
+        android:id="@+id/imageViewDishUpload"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/person_icon"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Submit Button -->
-        <Button
-            android:id="@+id/button_submit_dish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Dish"
-            app:layout_constraintTop_toBottomOf="@id/edit_text_dish_description"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+    <!-- Dish Name Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutDishName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Dish Name"
+        app:layout_constraintTop_toBottomOf="@id/imageViewDishUpload"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextDishName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Dish Description Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutDishDescription"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Dish Description"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutDishName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextDishDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Ingredients Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutIngredients"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Ingredients"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutDishDescription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Steps Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutSteps"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Steps"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutIngredients"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextSteps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Submit Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonSubmitDish"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Dish"
+        app:cornerRadius="8dp"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutSteps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
