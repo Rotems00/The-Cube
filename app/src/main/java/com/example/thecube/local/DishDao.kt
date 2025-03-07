@@ -13,7 +13,8 @@ interface DishDao {
     @Query("SELECT * FROM dishes")
     fun getAllDishes(): LiveData<List<Dish>>
 
-
+    @Query("SELECT * FROM dishes WHERE userId = :userId")
+    suspend fun getDishesByUserSync(userId: String): List<Dish>
     //Insert a single dish
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -29,6 +30,9 @@ interface DishDao {
     //Delete a dish
     @Delete
     suspend fun deleteDish(dish: Dish)
+
+    @Delete
+    suspend fun deleteDishes(dishes: List<Dish>)
 }
 
 

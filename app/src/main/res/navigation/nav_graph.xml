@@ -63,7 +63,11 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.thecube.ui.ProfileFragment"
-        android:label="Profile" />
+        android:label="Profile">
+        <action
+            android:id="@+id/action_profileFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/myDishesFragment"
