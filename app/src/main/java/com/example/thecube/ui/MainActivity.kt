@@ -2,21 +2,26 @@ package com.example.thecube.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.thecube.R
 import com.example.thecube.databinding.ActivityMainBinding
+import com.example.thecube.util.ThreadPoolManager
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
 
         // Get the NavHostFragment and its NavController
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -65,5 +70,30 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        // Example: Run a background task using our thread pool.
+        ThreadPoolManager.submitTask {
+            // Simulate a heavy background task.
+            val result = performHeavyTask()
+
+            // Update the UI on the main thread.
+
+        }
+    }
+
+    /**
+     * Simulates a heavy background task.
+     * @return A result string.
+     */
+    private fun performHeavyTask(): String {
+        // Simulate some heavy work (e.g., network request, computation)
+        Thread.sleep(2000) // Simulate delay of 2 seconds
+        return "Background Task Completed"
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Shutdown the thread pool when the activity is destroyed.
+        ThreadPoolManager.shutdown()
     }
 }

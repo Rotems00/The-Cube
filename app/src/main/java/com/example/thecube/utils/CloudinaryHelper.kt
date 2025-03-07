@@ -16,14 +16,18 @@ object CloudinaryHelper {
      * @param onSuccess Callback invoked with the secure URL when the upload is successful.
      * @param onError Callback invoked with the error description if the upload fails.
      */
-    fun uploadBitmap(bitmap: Bitmap, onSuccess: (String?) -> Unit, onError: (String?) -> Unit) {
+    fun uploadBitmap(
+        bitmap: Bitmap,
+        onSuccess: (String?) -> Unit,
+        onError: (String?) -> Unit
+    ) {
         // Convert Bitmap to ByteArray
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val byteArray = baos.toByteArray()
 
         MediaManager.get().upload(byteArray)
-            .option("folder", "images-the-cube")  // Organize uploads in a folder
+            .option("folder", "images-the-cube")  // Use a single folder option
             .option("resource_type", "image")
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String?) {

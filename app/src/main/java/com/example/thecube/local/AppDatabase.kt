@@ -1,14 +1,15 @@
 package com.example.thecube.local
 
+import com.example.thecube.model.Dish
+
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.thecube.model.Dish
 import kotlin.concurrent.Volatile
 
 
-@Database(entities = [Dish::class], version = 2, exportSchema = false)
+@Database(entities = [Dish::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dishDao(): DishDao
 

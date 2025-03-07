@@ -1,5 +1,8 @@
 package com.example.thecube.ui
 
+import com.example.thecube.model.Dish
+
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.thecube.R
-import com.example.thecube.model.Dish
+
 
 class FavouriteDishesAdapter(
     private val onItemClick: ((Dish) -> Unit)? = null

@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentSignUpBinding
+import com.example.thecube.model.User
+import com.example.thecube.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 class SignUpFragment : Fragment() {
@@ -29,31 +31,51 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
+        binding.textViewAlreadyHaveAccount.setOnClickListener {
+            val action = SignUpFragmentDirections.actionSignUpFragmentToSignInFragment()
+            findNavController().navigate(action)
+        }
 
         binding.buttonSignUp.setOnClickListener {
             val name = binding.editTextName.text.toString().trim()
             val email = binding.editTextEmail.text.toString().trim()
             val password = binding.editTextPassword.text.toString().trim()
 
-
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Create a new user with Firebase Authentication
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Optionally, update the user's profile with their name
                         val user = auth.currentUser
+                        val userId = user?.uid ?: ""
+                        // Update the Firebase Auth user profile (for displayName)
                         val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
                             .setDisplayName(name)
                             .build()
                         user?.updateProfile(profileUpdates)?.addOnCompleteListener { updateTask ->
                             if (updateTask.isSuccessful) {
-                                Toast.makeText(requireContext(), "Sign up successful", Toast.LENGTH_SHORT).show()
-                                // TODO: Navigate to the main screen (e.g., DishCarouselFragment)
+                                // Now create a Firestore user document.
+                                val newUser = User(
+                                    id = userId,
+                                    name = name,
+                                    email = email,
+                                    password = "",  // Store a hash if you must, but generally don't store raw passwords.
+                                    imageUrl = "",  // This will be updated when user uploads profile pic.
+                                    country = ""    // Set default or collect from user.
+                                )
+                                UserRepository().createUser(newUser) { success, error ->
+                                    if (success) {
+                                        Toast.makeText(requireContext(), "Sign up successful", Toast.LENGTH_SHORT).show()
+                                        // Navigate to the main screen, e.g., HomeFragment
+                                        findNavController().navigate(SignUpFragmentDirections.actionSignUpFragmentToHomeFragment())
+
+                                    } else {
+                                        Toast.makeText(requireContext(), "Error saving user: $error", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             } else {
                                 Toast.makeText(requireContext(), "Failed to update profile: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
                             }
@@ -63,9 +85,7 @@ class SignUpFragment : Fragment() {
                     }
                 }
         }
-        binding.textViewAlreadyHaveAccount.setOnClickListener {
-            findNavController().navigate(R.id.action_signUpFragment_to_signInFragment)
-        }
+
     }
 
     override fun onDestroyView() {

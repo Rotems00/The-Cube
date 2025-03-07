@@ -14,6 +14,20 @@
         <action
             android:id="@+id/action_signUpFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+
+    </fragment>
+    <fragment
+        android:id="@+id/editDishFragment"
+        android:name="com.example.thecube.ui.EditDishFragment"
+        android:label="Edit Dish"
+        tools:layout="@layout/fragment_edit_dish">
+        <argument
+            android:name="dish"
+            app:argType="com.example.thecube.model.Dish" />
     </fragment>
 
     <!-- Sign In Fragment -->
@@ -50,6 +64,16 @@
         android:id="@+id/profileFragment"
         android:name="com.example.thecube.ui.ProfileFragment"
         android:label="Profile" />
+
+    <fragment
+        android:id="@+id/myDishesFragment"
+        android:name="com.example.thecube.ui.MyDishesFragment"
+        android:label="My Dishes"
+        tools:layout="@layout/fragment_my_dishes">
+        <action
+            android:id="@+id/action_myDishesFragment_to_editDishFragment"
+            app:destination="@id/editDishFragment" />
+    </fragment>
 
     <!-- Favourite Dishes Fragment -->
     <fragment
