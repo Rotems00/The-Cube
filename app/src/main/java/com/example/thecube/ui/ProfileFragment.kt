@@ -5,24 +5,31 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentProfileBinding
+import com.example.thecube.local.AppDatabase
 import com.example.thecube.model.User
 import com.example.thecube.repository.UserRepository
 import com.example.thecube.utils.CloudinaryHelper
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     // Safe non-null access to the binding instance
     private val binding get() = _binding!!
+    private lateinit var btnLogout: Button
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // Local default image resource (if no profile picture is available)
     private val profileImageRes = R.drawable.avatar_profile
@@ -74,6 +81,15 @@ class ProfileFragment : Fragment() {
             binding.profileName.text = "ERROR LOADING PROFILE"
             binding.profileEmail.text = "ERROR LOADING PROFILE"
         }
+        binding.btnLogout.setOnClickListener {
+            // Sign out the user
+            auth.signOut()
+
+            // Optionally clear any local data if necessary
+            clearLocalData()
+            val action = ProfileFragmentDirections.actionProfileFragmentToSignInFragment()
+            findNavController().navigate(action)
+        }
 
         // When the profile image is clicked, show a dialog to choose the image source
         binding.profileImage.setOnClickListener {
@@ -117,6 +133,23 @@ class ProfileFragment : Fragment() {
         }, onError = { error ->
             Toast.makeText(requireContext(), "Upload failed: $error", Toast.LENGTH_SHORT).show()
         })
+    }
+
+    private fun clearLocalData() {
+        val currentUserId = auth.currentUser?.uid
+        currentUserId?.let { userId ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val dishDao = AppDatabase.getDatabase(requireContext()).dishDao()
+                    val dishesByUser = dishDao.getDishesByUserSync(userId)
+                    if (dishesByUser.isNotEmpty()) {
+                        dishDao.deleteDishes(dishesByUser)
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Failed to clear local data: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     /**
