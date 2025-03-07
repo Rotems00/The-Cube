@@ -14,7 +14,6 @@
         android:id="@+id/imageViewDishUpload"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/avatar_profile"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

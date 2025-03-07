@@ -9,11 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.thecube.databinding.FragmentDishCarouselBinding
+import com.example.thecube.model.Country
+import com.example.thecube.remote.RetrofitInstance
 
 import com.example.thecube.repository.LocalRecipeRepository
 import com.example.thecube.viewModel.DishViewModel
+import kotlinx.coroutines.launch
 
 class DishCarouselFragment : Fragment() {
 
@@ -40,14 +44,27 @@ class DishCarouselFragment : Fragment() {
         selectedCountry = arguments?.getString("country")
         Log.d("DishCarouselFragment", "Selected country: $selectedCountry")
 
-        // Initialize your adapter and RecyclerView (or ViewPager2) for the carousel.
+        // Initialize your adapter and set up RecyclerView
         dishAdapter = DishAdapter()
         binding.recyclerViewDishes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerViewDishes.adapter = dishAdapter
 
+        // Fetch the list of countries from the API and pass it to the adapter
+        lifecycleScope.launch {
+            try {
+                val countriesList: List<Country> = RetrofitInstance.api.getCountries()
+
+                dishAdapter.setCountries(countriesList)
+            } catch (e: Exception) {
+                Log.e("DishCarouselFragment", "Error fetching countries: ${e.message}")
+            }
+        }
+
+
         // Load the local dishes for the selected country.
         loadDishesForCountry()
     }
+
 
     private fun loadDishesForCountry() {
         if (selectedCountry != null) {

@@ -23,11 +23,11 @@ object CloudinaryHelper {
     ) {
         // Convert Bitmap to ByteArray
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val byteArray = baos.toByteArray()
 
         MediaManager.get().upload(byteArray)
-            .option("folder", "images-the-cube")  // Use a single folder option
+            .option("folder", "images-the-cube")  // Upload into the specified folder
             .option("resource_type", "image")
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String?) {
