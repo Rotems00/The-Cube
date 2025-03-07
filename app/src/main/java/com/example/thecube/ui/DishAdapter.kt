@@ -1,5 +1,7 @@
 package com.example.thecube.ui
 
+import com.example.thecube.model.Dish
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +12,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.thecube.R
-import com.example.thecube.model.Dish
 
 
-class DishAdapter : ListAdapter<Dish, DishAdapter.DishViewHolder>(DishDiffCallback()) {
+class DishAdapter(
+    private val onItemClick: ((Dish) -> Unit)? = null
+) : ListAdapter<Dish, DishAdapter.DishViewHolder>(DishDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DishViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -24,6 +27,9 @@ class DishAdapter : ListAdapter<Dish, DishAdapter.DishViewHolder>(DishDiffCallba
     override fun onBindViewHolder(holder: DishViewHolder, position: Int) {
         val dish = getItem(position)
         holder.bind(dish)
+        holder.itemView.setOnClickListener {
+            onItemClick?.invoke(dish)
+        }
     }
 
     class DishViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

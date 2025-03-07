@@ -1,5 +1,7 @@
 package com.example.thecube.ui
 
+import com.example.thecube.model.Dish
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.thecube.databinding.FragmentDishCarouselBinding
-import com.example.thecube.model.Dish
+
 import com.example.thecube.repository.LocalRecipeRepository
 import com.example.thecube.viewModel.DishViewModel
 

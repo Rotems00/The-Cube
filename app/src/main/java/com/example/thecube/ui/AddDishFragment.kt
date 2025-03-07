@@ -1,5 +1,7 @@
 package com.example.thecube.ui
 
+import com.example.thecube.model.Dish
+
 import android.app.AlertDialog
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -10,14 +12,16 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentAddDishBinding
-import com.example.thecube.model.Dish
+
 import com.example.thecube.utils.CloudinaryHelper
 import com.example.thecube.viewModel.DishViewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.util.UUID
 
 class AddDishFragment : Fragment() {
@@ -83,6 +87,7 @@ class AddDishFragment : Fragment() {
             val dishDescription = binding.editTextDishDescription.text.toString().trim()
             val ingredients = binding.editTextIngredients.text.toString().trim()
             val steps = binding.editTextSteps.text.toString().trim()
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
             // Basic validation
             if (dishName.isEmpty() || dishDescription.isEmpty() || ingredients.isEmpty() || steps.isEmpty()) {
@@ -94,22 +99,28 @@ class AddDishFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Create a Dish object
+            // Create and insert the dish
             val newDish = Dish(
                 id = UUID.randomUUID().toString(),
-                flagImageUrl = "", // Optionally set if available
+                flagImageUrl = "", // Optional: set if available
                 dishName = dishName,
-                dishDescription = "$dishDescription\nSteps:\n$steps",
+                dishDescription = dishDescription,
+                dishSteps = steps,
                 imageUrl = uploadedImageUrl!!,
                 countLikes = 0,
                 ingredients = ingredients,
-                country = "" // Set if applicable
+                country = "", // Set if applicable
+                userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
             )
-            // Insert dish into local database (and Firestore via DishRepository)
             dishViewModel.insertDish(newDish)
             Toast.makeText(requireContext(), "Dish added successfully", Toast.LENGTH_SHORT).show()
+
+            // Navigate to MyDishesFragment after adding a dish
+            findNavController().navigate(R.id.myDishesFragment)
+
             clearFields()
         }
+
     }
 
     // Use Glide to load a downsampled Bitmap and then upload it

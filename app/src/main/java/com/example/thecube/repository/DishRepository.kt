@@ -1,8 +1,10 @@
 package com.example.thecube.repository
 
+import com.example.thecube.model.Dish
+
 import androidx.lifecycle.LiveData
 import com.example.thecube.local.DishDao
-import com.example.thecube.model.Dish
+
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DishRepository(private val dishDao: DishDao) {

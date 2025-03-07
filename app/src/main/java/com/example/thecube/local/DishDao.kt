@@ -1,8 +1,10 @@
 package com.example.thecube.local
 
+import com.example.thecube.model.Dish
+
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.thecube.model.Dish
+
 
 @Dao
 interface DishDao {
@@ -17,6 +19,8 @@ interface DishDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDish(dish: Dish)
 
+    @Query("SELECT * FROM dishes WHERE userId = :userId")
+    fun getDishesByUser(userId: String): LiveData<List<Dish>>
 
     // Update an existing dish
     @Update
