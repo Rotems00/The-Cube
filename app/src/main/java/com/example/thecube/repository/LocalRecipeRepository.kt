@@ -19,7 +19,7 @@ object LocalRecipeRepository {
             flagImageUrl = "https://flagcdn.com/w320/us.png",
             countLikes = 150,
             ingredients = "Beef, bun, cheese, lettuce, tomato",
-            country = "United States",
+            country = "United States of America",
             userId = "testUser",
 
         ),
@@ -32,7 +32,7 @@ object LocalRecipeRepository {
             flagImageUrl = "https://flagcdn.com/w320/us.png",
             countLikes = 120,
             ingredients = "Sausage, bun, mustard, ketchup",
-            country = "United States",
+            country = "United States of America",
             userId = "testUser",
 
         ),

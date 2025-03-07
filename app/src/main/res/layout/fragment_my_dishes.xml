@@ -1,78 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/myDishesRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_bg"
     tools:context=".ui.MyDishesFragment">
 
-    <!-- AppBar with a MaterialToolbar to show profile pic -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarMyDishes"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-        app:liftOnScroll="true">
+    <!-- Full-screen carousel (ViewPager2) -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerMyDishes"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:itemCount="3" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarMyDishes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-            android:titleTextColor="@android:color/white"
-            app:layout_scrollFlags="scroll|enterAlways">
+    <!-- Profile picture overlay -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="40dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/profile_picture"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-            <!-- You can replace this with a CircleImageView from a 3rd-party library
-                 or keep it as a regular ImageView. -->
-            <ImageView
-                android:id="@+id/imageViewProfile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/profile_picture"
-                android:scaleType="centerCrop"
-                android:src="@drawable/avatar_profile" />
+    <!-- Optional text overlay (e.g., "My Dishes") -->
+    <TextView
+        android:id="@+id/textViewProfileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/my_dishes"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/imageViewProfile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Optional text to the right of the profile image -->
-            <TextView
-                android:id="@+id/textViewProfileName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_gravity="center_vertical"
-                android:text="@string/my_dishes"
-                android:textColor="@android:color/white"
-                android:textSize="18sp" />
-
-        </com.google.android.material.appbar.MaterialToolbar>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- Main content container. The appbar scrolling behavior is set below -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/contentLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <!-- Center the ViewPager2 in this layout -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerMyDishes"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.9"
-        app:layout_constraintHeight_percent="0.7"
-        />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -77,7 +77,7 @@ class EditDishFragment : Fragment() {
         // Load current image using Glide
         Glide.with(requireContext())
             .load(currentDish.imageUrl)
-            .override(500, 500)
+            .override(720, 720)
             .centerCrop()
             .into(binding.imageViewDishUpload)
 
@@ -124,7 +124,7 @@ class EditDishFragment : Fragment() {
         Glide.with(requireContext())
             .asBitmap()
             .load(uri)
-            .override(500, 500)
+            .override(720, 720)
             .centerCrop()
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
@@ -133,7 +133,7 @@ class EditDishFragment : Fragment() {
                         // Display the new image from the secure URL
                         Glide.with(requireContext())
                             .load(secureUrl)
-                            .override(500, 500)
+                            .override(720, 720)
                             .centerCrop()
                             .into(binding.imageViewDishUpload)
                         Toast.makeText(requireContext(), "Image updated successfully", Toast.LENGTH_SHORT).show()
@@ -150,7 +150,7 @@ class EditDishFragment : Fragment() {
         Glide.with(requireContext())
             .asBitmap()
             .load(bitmap)
-            .override(500, 500)
+            .override(720, 720)
             .centerCrop()
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
@@ -159,7 +159,7 @@ class EditDishFragment : Fragment() {
                         // Display the new image from the secure URL
                         Glide.with(requireContext())
                             .load(secureUrl)
-                            .override(500, 500)
+                            .override(720, 720)
                             .centerCrop()
                             .into(binding.imageViewDishUpload)
                         Toast.makeText(requireContext(), "Image updated successfully", Toast.LENGTH_SHORT).show()

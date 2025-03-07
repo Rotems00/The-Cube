@@ -57,6 +57,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.circleimageview)
 
     implementation(libs.androidx.room.ktx)     // Room coroutine and LiveData support
     implementation (libs.androidx.room.runtime)

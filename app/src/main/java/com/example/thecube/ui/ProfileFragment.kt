@@ -5,36 +5,39 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Button
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentProfileBinding
 import com.example.thecube.local.AppDatabase
 import com.example.thecube.model.User
 import com.example.thecube.repository.UserRepository
 import com.example.thecube.utils.CloudinaryHelper
+import com.example.thecube.viewModel.SharedUserViewModel
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
-    // Safe non-null access to the binding instance
     private val binding get() = _binding!!
-    private lateinit var btnLogout: Button
+
+    // Shared ViewModel for user data
+    private val sharedUserViewModel: SharedUserViewModel by activityViewModels()
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val TAG = "ProfileFragmentDebug"
 
-    // Local default image resource (if no profile picture is available)
-    private val profileImageRes = R.drawable.avatar_profile
-
-    // Launchers for picking images from gallery and taking a photo from the camera
+    // Launchers for picking images from gallery and taking a photo
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
 
@@ -53,86 +56,184 @@ class ProfileFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
         savedInstanceState: Bundle?
     ): android.view.View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    /**
+     * Called after the view is created. We:
+     * 1) Observe sharedUserViewModel to update UI
+     * 2) Fetch user from Firestore (only once) and store in sharedUserViewModel
+     */
     override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            binding.profileName.text = currentUser.displayName ?: "NO NAME INITIALIZED"
-            binding.profileEmail.text = currentUser.email ?: "NO EMAIL INITIALIZED"
-            // Load a default image (or existing profile picture URL if stored in Firestore)
-            Glide.with(this@ProfileFragment)
-                .load(profileImageRes)
-                .override(500, 500)
-                .centerCrop()
-                .into(binding.profileImage)
 
-            // Navigate to MyDishesFragment when button is clicked
-            binding.buttonMyDishes.setOnClickListener {
-                findNavController().navigate(R.id.myDishesFragment)
+        // (1) Observe the shared user data
+        sharedUserViewModel.currentUserData.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                Log.d(TAG, "Observed user in ViewModel: ${user.imageUrl}")
+                // Update UI text
+                binding.profileName.text = if (user.name.isNotEmpty()) user.name else "NO NAME"
+                binding.profileEmail.text = if (user.email.isNotEmpty()) user.email else "NO EMAIL"
+
+                // Update photo if we have a valid URL
+                if (user.imageUrl.isNotEmpty()) {
+                    Glide.with(this)
+                        .load(user.imageUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .override(720, 720)
+                        .centerCrop()
+                        .into(binding.profileImage)
+                } else {
+                    // If there's no image, optionally load a placeholder or do nothing
+                    Glide.with(this)
+                        .load(R.drawable.avatar_profile)
+                        .override(720, 720)
+                        .centerCrop()
+                        .into(binding.profileImage)
+                }
+            } else {
+                // If user is null, show some fallback
+                binding.profileName.text = "ERROR LOADING PROFILE"
+                binding.profileEmail.text = "ERROR LOADING PROFILE"
+                Glide.with(this)
+                    .load(R.drawable.avatar_profile)
+                    .override(720, 720)
+                    .centerCrop()
+                    .into(binding.profileImage)
             }
-        } else {
-            binding.profileName.text = "ERROR LOADING PROFILE"
-            binding.profileEmail.text = "ERROR LOADING PROFILE"
         }
+
+        // (2) Actually fetch the user from Firestore if we don't already have it
+        val userId = auth.currentUser?.uid
+        if (userId != null && sharedUserViewModel.currentUserData.value == null) {
+            loadUserFromFirestore(userId)
+        }
+
+        // My Dishes button
+        binding.buttonMyDishes.setOnClickListener {
+            findNavController().navigate(R.id.myDishesFragment)
+        }
+
+        // Sign Out button
         binding.btnLogout.setOnClickListener {
-            // Sign out the user
             auth.signOut()
-
-            // Optionally clear any local data if necessary
             clearLocalData()
-            val action = ProfileFragmentDirections.actionProfileFragmentToSignInFragment()
-            findNavController().navigate(action)
+            val navController = findNavController()
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.signInFragment, true)
+                .build()
+            navController.navigate(R.id.signInFragment, null, navOptions)
         }
 
-        // When the profile image is clicked, show a dialog to choose the image source
+        // Tapping on profile image => dialog to choose source
         binding.profileImage.setOnClickListener {
             showImageSourceDialog()
         }
     }
 
     /**
-     * Converts the provided Bitmap into a compressed JPEG, uploads it to Cloudinary,
-     * then uses the returned URL to update the UI and Firestore.
+     * Actually fetches the user doc from Firestore, sets it in sharedUserViewModel.
+     */
+    private fun loadUserFromFirestore(userId: String) {
+        UserRepository().getUser(userId) { user ->
+            if (user != null) {
+                Log.d(TAG, "loadUserFromFirestore: user found, imageUrl=${user.imageUrl}")
+                // Store user in shared ViewModel => triggers observer to update UI
+                sharedUserViewModel.currentUserData.value = user
+            } else {
+                Log.d(TAG, "loadUserFromFirestore: user doc not found")
+                // We can set null or handle an error case
+                sharedUserViewModel.currentUserData.value = null
+            }
+        }
+    }
+
+    /**
+     * Handle a newly captured or picked Bitmap, upload to Cloudinary, update Firestore.
      */
     private fun handleBitmap(bitmap: Bitmap) {
         CloudinaryHelper.uploadBitmap(bitmap, onSuccess = { secureUrl ->
-            // Downsample and display the image with Glide
-            Glide.with(this@ProfileFragment)
-                .load(secureUrl)
-                .override(500, 500)
-                .centerCrop()
-                .into(binding.profileImage)
+            if (secureUrl != null) {
+                Log.d(TAG, "handleBitmap: Cloudinary secureUrl=$secureUrl")
 
-            // Update Firestore with the new profile picture URL
-            FirebaseAuth.getInstance().currentUser?.let { currentUser ->
-                val userId = currentUser.uid
-                // Create an updated user object (avoid storing passwords)
-                val updatedUser = User(
-                    id = userId,
-                    name = currentUser.displayName ?: "",
-                    email = currentUser.email ?: "",
-                    password = "",
-                    imageUrl = secureUrl ?: "",
-                    country = "" // Set/update the country as needed
-                )
-                UserRepository().updateUser(updatedUser) { success, error ->
-                    if (success) {
-                        Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to update user: $error", Toast.LENGTH_SHORT).show()
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    val updatedUser = User(
+                        id = currentUser.uid,
+                        name = currentUser.displayName ?: "",
+                        email = currentUser.email ?: "",
+                        password = "",
+                        imageUrl = secureUrl,
+                        country = "" // if needed
+                    )
+                    UserRepository().updateUser(updatedUser) { success, error ->
+                        if (success) {
+                            Log.d(TAG, "handleBitmap: Firestore user updated with imageUrl=$secureUrl")
+                            Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
+                            // Refresh from Firestore or just directly update viewmodel
+                            sharedUserViewModel.currentUserData.value = updatedUser
+                        } else {
+                            Log.d(TAG, "handleBitmap: Firestore updateUser failed: $error")
+                            Toast.makeText(requireContext(), "Failed to update user: $error", Toast.LENGTH_SHORT).show()
+                        }
                     }
+                } else {
+                    Log.d(TAG, "handleBitmap: currentUser is null.")
                 }
+
+                // Immediate UI feedback if you want to see it right away
+                Glide.with(this)
+                    .load(secureUrl)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .override(720, 720)
+                    .centerCrop()
+                    .into(binding.profileImage)
+
+            } else {
+                Log.d(TAG, "handleBitmap: secureUrl is null!")
             }
         }, onError = { error ->
+            Log.d(TAG, "handleBitmap: Cloudinary upload failed: $error")
             Toast.makeText(requireContext(), "Upload failed: $error", Toast.LENGTH_SHORT).show()
         })
+    }
+
+    /**
+     * Loads a Bitmap from the given URI, then calls handleBitmap() to do the Cloudinary flow.
+     */
+    private fun handleImageUri(uri: Uri) {
+        val bitmap: Bitmap? = context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream)
+        }
+        if (bitmap != null) {
+            handleBitmap(bitmap)
+        } else {
+            Toast.makeText(requireContext(), "Failed to load image from URI", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * A dialog to pick from gallery or take a photo.
+     */
+    private fun showImageSourceDialog() {
+        val options = arrayOf("Choose from Gallery", "Take Photo")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Update Profile Picture")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> galleryLauncher.launch("image/*")
+                    1 -> cameraLauncher.launch(null)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun clearLocalData() {
@@ -149,36 +250,6 @@ class ProfileFragment : Fragment() {
                     Toast.makeText(requireContext(), "Failed to clear local data: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
-    }
-
-    /**
-     * Displays a dialog allowing the user to select an image from the gallery or take a new photo.
-     */
-    private fun showImageSourceDialog() {
-        val options = arrayOf("Choose from Gallery", "Take Photo")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Update Profile Picture")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> galleryLauncher.launch("image/*")
-                    1 -> cameraLauncher.launch(null)
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    /**
-     * Handles the image selected from the gallery.
-     * Converts the URI to a Bitmap and then processes it.
-     */
-    private fun handleImageUri(uri: Uri) {
-        val bitmap: Bitmap? = context?.contentResolver?.openInputStream(uri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream)
-        }
-        bitmap?.let { handleBitmap(it) } ?: run {
-            Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
         }
     }
 
