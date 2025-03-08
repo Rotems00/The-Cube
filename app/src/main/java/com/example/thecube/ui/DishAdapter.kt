@@ -1,11 +1,13 @@
 package com.example.thecube.ui
 
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +15,8 @@ import com.bumptech.glide.Glide
 import com.example.thecube.R
 import com.example.thecube.model.Dish
 import com.example.thecube.model.Country
+import com.example.thecube.ui.MyDishesFragmentDirections
+import com.google.firebase.auth.FirebaseAuth
 
 class DishAdapter(
     private val onItemClick: ((Dish) -> Unit)? = null,
@@ -27,8 +31,21 @@ class DishAdapter(
     override fun onBindViewHolder(holder: DishViewHolder, position: Int) {
         val dish = getItem(position)
         holder.bind(dish, countries)
-        holder.itemView.setOnClickListener {
-            onItemClick?.invoke(dish)
+        holder.itemView.setOnClickListener { view ->
+            // Check if the dish belongs to the current user
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            Log.d("DishAdapter", "Current user: $currentUserId, Dish owner: ${dish.userId}")
+            if (currentUserId != null && dish.userId == currentUserId) {
+                // Navigate to EditDishFragment using Safe Args
+                val action = MyDishesFragmentDirections.actionMyDishesFragmentToEditDishFragment(dish)
+                view.findNavController().navigate(action)
+            } else {
+                // Navigate to DishDetailFragment using a bundle
+                val bundle = Bundle().apply {
+                    putParcelable("dish", dish)
+                }
+                view.findNavController().navigate(R.id.dishDetailFragment, bundle)
+            }
         }
     }
 
@@ -48,22 +65,26 @@ class DishAdapter(
                 .load(dish.imageUrl)
                 .into(dishImageView)
 
-            // Trim and compare country names to avoid whitespace issues
             val dishCountry = dish.country.trim()
-            val matchingCountry = countries.find {
-                it.name.common.trim().equals(dishCountry, ignoreCase = true)
+            Log.d("DishAdapter", "Dish country: '$dishCountry'")
+            val matchingCountry = countries.find { country ->
+                val apiCountry = country.name.common.trim()
+                Log.d("DishAdapter", "Comparing with API country: '$apiCountry'")
+                // Use exact match, or check if one string contains the other (ignoring case)
+                apiCountry.equals(dishCountry, ignoreCase = true) ||
+                        apiCountry.contains(dishCountry, ignoreCase = true) ||
+                        dishCountry.contains(apiCountry, ignoreCase = true)
             }
             if (matchingCountry != null) {
+                Log.d("DishAdapter", "Matched API country: '${matchingCountry.name.common}'")
                 Glide.with(itemView.context)
                     .load(matchingCountry.flags.png)
                     .into(flagImageView)
             } else {
-                // Log a warning for debugging
                 Log.w("DishAdapter", "No matching country found for: '$dishCountry'")
                 flagImageView.setImageResource(R.drawable.placeholder_flag)
             }
         }
-
     }
 }
 

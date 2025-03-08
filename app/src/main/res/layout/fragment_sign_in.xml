@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/signInRoot"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/signInRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
     tools:context=".ui.auth.SignInFragment">
 
     <!-- Title -->
@@ -61,16 +63,6 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-    android:id="@+id/textViewSignUp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Don't have an account? Sign up"
-    android:layout_marginTop="16dp"
-    app:layout_constraintTop_toBottomOf="@id/buttonSignIn"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
-
     <!-- Sign In Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSignIn"
@@ -83,13 +75,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
 
-    <!-- ImageView with proper constraints -->
+    <!-- "Don't have an account? Sign up" text -->
+    <TextView
+        android:id="@+id/textViewSignUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an account? Sign up"
+        android:textColor="@android:color/holo_blue_dark"
+        app:layout_constraintTop_toBottomOf="@id/buttonSignIn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Example ImageView (optional, if present) -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="332dp"
         android:layout_height="450dp"
         android:src="@drawable/cheff"
-        app:layout_constraintTop_toBottomOf="@id/buttonSignIn"
+        app:layout_constraintTop_toBottomOf="@id/textViewSignUp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
