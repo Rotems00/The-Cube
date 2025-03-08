@@ -8,17 +8,16 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "dishes")
 data class Dish(
-    @PrimaryKey val id: String,
-    val flagImageUrl: String,
-    val dishName: String,
-    val dishDescription: String,  // Main description
-    val dishSteps: String,          // Separate steps field
-    val imageUrl: String,
-    val countLikes: Int,
-    val ingredients: String,
-    val country: String,
-    val userId: String,
-
+    @PrimaryKey val id: String = "",
+    val flagImageUrl: String = "",
+    val dishName: String = "",
+    val dishDescription: String = "",
+    val dishSteps: String = "",
+    val imageUrl: String = "",
+    val countLikes: Int = 0,
+    val ingredients: String = "",
+    val country: String = "",
+    val userId: String = ""
 ) : Parcelable
 
 

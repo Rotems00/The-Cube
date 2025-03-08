@@ -1,6 +1,7 @@
 package com.example.thecube.ui.auth
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -63,7 +65,12 @@ class SignUpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
 
-        // 1) Fetch countries from API and setup spinner
+        binding.signUpRoot.setOnTouchListener { v, _ ->
+            hideKeyboard(v)
+            false
+        }
+
+            // 1) Fetch countries from API and setup spinner
         lifecycleScope.launch {
             try {
                 val countriesFromApi = RetrofitInstance.api.getCountries()
@@ -176,6 +183,11 @@ class SignUpFragment : Fragment() {
         }
     }
 
+
+        private fun hideKeyboard(view: View) {
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     /**
      * Lets the user pick from gallery or take a new photo.
      */

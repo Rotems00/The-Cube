@@ -2,11 +2,18 @@ package com.example.thecube.ui
 
 import com.example.thecube.model.Dish
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,8 +32,6 @@ import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import java.util.UUID
 import com.example.thecube.utils.createImageFile
-
-
 
 class AddDishFragment : Fragment() {
 
@@ -58,7 +63,6 @@ class AddDishFragment : Fragment() {
             if (success) {
                 currentPhotoUri?.let { uri ->
                     Log.d("AddDishFragment", "Captured image URI: $uri")
-                    // Load full-resolution image from the file URI using Glide
                     Glide.with(requireContext())
                         .asBitmap()
                         .load(uri)
@@ -79,16 +83,25 @@ class AddDishFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): android.view.View {
+    ): View {
         _binding = FragmentAddDishBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dishViewModel = ViewModelProvider(this).get(DishViewModel::class.java)
+
+        // Hide the keyboard when tapping outside input fields.
+        binding.addDishRoot.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                hideKeyboard(v)
+                v.clearFocus()
+            }
+            false
+        }
 
         // Set click listener for image view to pick an image
         binding.imageViewDishUpload.setOnClickListener {
@@ -98,14 +111,12 @@ class AddDishFragment : Fragment() {
                     when (which) {
                         0 -> {
                             Log.d("AddDishFragment", "Camera option selected")
-                            // Create a temporary file for high-resolution photo
                             val photoFile: File = createImageFile(requireContext())
                             currentPhotoUri = FileProvider.getUriForFile(
                                 requireContext(),
                                 "${requireContext().packageName}.fileprovider",
                                 photoFile
                             )
-                            // Launch camera with the obtained URI
                             currentPhotoUri?.let { uri ->
                                 cameraLauncher.launch(uri)
                             } ?: Log.e("AddDishFragment", "Failed to obtain a valid photo URI")
@@ -126,7 +137,6 @@ class AddDishFragment : Fragment() {
             val steps = binding.editTextSteps.text.toString().trim()
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-            // Basic validation
             if (dishName.isEmpty() || dishDescription.isEmpty() || ingredients.isEmpty() || steps.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 Log.w("AddDishFragment", "Missing one or more required fields")
@@ -138,43 +148,25 @@ class AddDishFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Fetch user profile from Firestore to retrieve the user's country
             Log.d("AddDishFragment", "Fetching user profile for userId: $currentUserId")
             UserRepository().getUser(currentUserId) { user ->
                 if (user != null) {
-                    val dishCountry = user.country  // Use the country from the user's profile
+                    val dishCountry = user.country
                     Log.d("AddDishFragment", "Retrieved user country: '$dishCountry'")
                     val newDish = Dish(
                         id = UUID.randomUUID().toString(),
-                        flagImageUrl = "", // Optional; update later if needed
+                        flagImageUrl = "",
                         dishName = dishName,
                         dishDescription = dishDescription,
                         dishSteps = steps,
-                        imageUrl = uploadedImageUrl!!,  // Secure URL from Cloudinary
+                        imageUrl = uploadedImageUrl!!,
                         countLikes = 0,
                         ingredients = ingredients,
-                        country = dishCountry,  // Set dish country from user's profile
+                        country = dishCountry,
                         userId = currentUserId
                     )
                     Log.d("AddDishFragment", "New dish created with country: '${newDish.country}'")
-
-                    // Insert dish into Room for offline access
                     dishViewModel.insertDish(newDish)
-
-                    // OPTIONAL: Save dish into Firestore for online use.
-                    // If you haven't implemented a createDish() method in your repository, do so.
-                    // For example:
-                    // UserRepository().createDish(newDish) { success, error ->
-                    //    if (success) {
-                    //         Toast.makeText(requireContext(), "Dish added successfully", Toast.LENGTH_SHORT).show()
-                    //         findNavController().navigate(R.id.myDishesFragment)
-                    //         clearFields()
-                    //    } else {
-                    //         Toast.makeText(requireContext(), "Error saving dish: $error", Toast.LENGTH_SHORT).show()
-                    //    }
-                    // }
-
-                    // For now, we assume Room storage is sufficient:
                     Toast.makeText(requireContext(), "Dish added successfully", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.myDishesFragment)
                     clearFields()
@@ -186,7 +178,11 @@ class AddDishFragment : Fragment() {
         }
     }
 
-    // Upload an image selected from gallery
+    private fun hideKeyboard(view: View) {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     private fun uploadImage(uri: Uri) {
         Log.d("AddDishFragment", "Uploading image from URI: $uri")
         Glide.with(requireContext())
@@ -203,13 +199,11 @@ class AddDishFragment : Fragment() {
             })
     }
 
-    // Upload the captured image bitmap to Cloudinary
     private fun uploadCapturedImage(bitmap: Bitmap) {
         Log.d("AddDishFragment", "Uploading captured image")
         com.example.thecube.utils.CloudinaryHelper.uploadBitmap(bitmap, onSuccess = { secureUrl ->
             Log.d("AddDishFragment", "Image uploaded successfully, URL: $secureUrl")
             uploadedImageUrl = secureUrl
-            // Display the image in the ImageView after uploading
             Glide.with(requireContext())
                 .load(secureUrl)
                 .override(720, 720)
@@ -227,7 +221,6 @@ class AddDishFragment : Fragment() {
         binding.editTextDishDescription.text?.clear()
         binding.editTextIngredients.text?.clear()
         binding.editTextSteps.text?.clear()
-        // Optionally reset the image view to a placeholder
         Glide.with(requireContext())
             .load(R.drawable.person_icon)
             .override(720, 720)

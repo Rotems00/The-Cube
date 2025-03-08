@@ -122,14 +122,24 @@ class ProfileFragment : Fragment() {
 
         // Sign Out button
         binding.btnLogout.setOnClickListener {
+            // Sign out from FirebaseAuth
             auth.signOut()
+
+            // Clear local Room data for the user
             clearLocalData()
-            val navController = findNavController()
+
+            // Clear the shared user data in your SharedUserViewModel
+            sharedUserViewModel.currentUserData.value = null
+
+            // Optionally, clear any cached data if needed
+
+            // Navigate to the sign-in screen while clearing the back stack
             val navOptions = NavOptions.Builder()
                 .setPopUpTo(R.id.signInFragment, true)
                 .build()
-            navController.navigate(R.id.signInFragment, null, navOptions)
+            findNavController().navigate(R.id.signInFragment, null, navOptions)
         }
+
 
         // Tapping on profile image => dialog to choose source
         binding.profileImage.setOnClickListener {
