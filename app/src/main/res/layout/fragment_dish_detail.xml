@@ -1,65 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardDishDetail"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_margin="0dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
 
-        <!-- Dish Image -->
-        <ImageView
-            android:id="@+id/imageViewDishDetail"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <!-- Dish Name -->
-        <TextView
-            android:id="@+id/textViewDishNameDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="24sp"
-            android:paddingTop="16dp" />
+            <!-- Dish Image at the top -->
+            <ImageView
+                android:id="@+id/imageViewDishDetail"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/dish_image" />
 
-        <!-- Dish Description -->
-        <TextView
-            android:id="@+id/textViewDishDescriptionDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp" />
+            <!-- White section for details -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/whiteSection"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#F1B765"
+                android:padding="16dp">
 
-        <!-- Ingredients -->
-        <TextView
-            android:id="@+id/textViewIngredientsDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="italic"
-            android:paddingTop="8dp" />
+                <!-- Row 1: Dish Name and Flag -->
+                <LinearLayout
+                    android:id="@+id/topRow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Steps -->
-        <TextView
-            android:id="@+id/textViewDishStepsDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp" />
+                    <TextView
+                        android:id="@+id/textViewDishNameDetail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:boxBackgroundColor="@color/white"
+                        android:fontFamily="@font/my_font"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        android:textColor="@color/black"
+                        android:text="Dish Name"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold"
+                        android:textSize="24sp" />
 
-        <Button
-            android:id="@+id/buttonViewComments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Comments"
-            app:layout_constraintTop_toBottomOf="@id/textViewDishStepsDetail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"/>
+                    <ImageView
+                        android:id="@+id/imageViewFlagDetail"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/placeholder_flag"/>
+                </LinearLayout>
 
+                <!-- Dish Description -->
+                <TextView
+                    android:id="@+id/textViewDishDescriptionDetail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    app:boxBackgroundColor="@color/white"
+                    android:fontFamily="@font/my_font"
+                    app:boxCornerRadiusBottomStart="20dp"
+                    app:boxCornerRadiusBottomEnd="20dp"
+                    app:boxCornerRadiusTopEnd="20dp"
+                    app:boxCornerRadiusTopStart="20dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:text="Dish Description"
+                    app:layout_constraintTop_toBottomOf="@id/topRow"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Additional fields as needed -->
-    </LinearLayout>
-</ScrollView>
+                <!-- Ingredients -->
+                <TextView
+                    android:id="@+id/textViewIngredientsDetail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:fontFamily="@font/my_font"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:text="Ingredients: ..."
+                    app:layout_constraintTop_toBottomOf="@id/textViewDishDescriptionDetail"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- Steps -->
+                <TextView
+                    android:id="@+id/textViewDishStepsDetail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:fontFamily="@font/my_font"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:text="Steps: ..."
+                    app:layout_constraintTop_toBottomOf="@id/textViewIngredientsDetail"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- "View Comments" Button anchored to bottom right -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonViewComments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View Comments"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/my_font"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_margin="16dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

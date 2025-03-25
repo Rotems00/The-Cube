@@ -14,10 +14,14 @@ data class Dish(
     val dishDescription: String = "",
     val dishSteps: String = "",
     val imageUrl: String = "",
-    val countLikes: Int = 0,
     val ingredients: String = "",
     val country: String = "",
-    val userId: String = ""
-) : Parcelable
+    val userId: String = "",
+    val countLikes: Int = 0,
+    val likedBy: List<String> = emptyList(),
+    val typeDish : String = "",
+    val difficulty : String = "Medium",
 
-
+    ) : Parcelable {
+    constructor() : this("", "", "", "", "", "", "", "", "", 0, emptyList(), "Regular", "Medium")
+}

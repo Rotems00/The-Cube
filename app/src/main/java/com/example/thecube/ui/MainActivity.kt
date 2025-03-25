@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.NavOptions
 import androidx.navigation.ui.setupWithNavController
 import com.example.thecube.R
 import com.example.thecube.databinding.ActivityMainBinding
@@ -25,10 +24,12 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        // Hide the bottom nav on Sign In/Sign Up screens
+        // Hide the bottom navigation on Splash, Sign In, and Sign Up screens.
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.signInFragment, R.id.signUpFragment -> {
+                R.id.splashFragment,
+                R.id.signInFragment,
+                R.id.signUpFragment -> {
                     binding.bottomNavigationBar.visibility = View.GONE
                 }
                 else -> {
@@ -37,10 +38,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Setup bottom nav with NavController
+        // Setup bottom navigation with NavController
         binding.bottomNavigationBar.setupWithNavController(navController)
 
-        // Custom actions for bottom nav items
+        // Custom actions for bottom navigation items
         binding.bottomNavigationBar.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_profile -> {
@@ -56,18 +57,6 @@ class MainActivity : AppCompatActivity() {
                     if (navController.currentDestination?.id != R.id.homeFragment) {
                         navController.navigate(R.id.homeFragment)
                     }
-                    // Get HomeFragment and call regenerateCube only if not animating
-                    val homeFragment = supportFragmentManager
-                        .findFragmentById(R.id.nav_host_fragment)
-                        ?.childFragmentManager
-                        ?.fragments
-                        ?.firstOrNull { it is HomeFragment } as? HomeFragment
-
-                    homeFragment?.let {
-                        if (!it.isAnimating) {
-                            it.regenerateCube()
-                        }
-                    }
                     true
                 }
                 R.id.menu_add_dish -> {
@@ -77,7 +66,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
 
         // Example: Run a background task using our thread pool.
         ThreadPoolManager.submitTask {

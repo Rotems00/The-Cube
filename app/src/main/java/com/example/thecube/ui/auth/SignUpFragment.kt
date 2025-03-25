@@ -3,10 +3,11 @@ package com.example.thecube.ui.auth
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,6 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentSignUpBinding
 import com.example.thecube.model.Country
@@ -28,6 +28,8 @@ import com.example.thecube.remote.RetrofitInstance
 import com.example.thecube.repository.UserRepository
 import com.example.thecube.utils.CloudinaryHelper
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -38,6 +40,9 @@ class SignUpFragment : Fragment() {
 
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
+
+    // Retain a strong reference to the Picasso Target for profile image upload.
+    private var profileImageTarget: Target? = null
 
     private lateinit var auth: FirebaseAuth
 
@@ -70,7 +75,7 @@ class SignUpFragment : Fragment() {
             false
         }
 
-            // 1) Fetch countries from API and setup spinner
+        // 1) Fetch countries from API and setup spinner
         lifecycleScope.launch {
             try {
                 val countriesFromApi = RetrofitInstance.api.getCountries()
@@ -112,9 +117,7 @@ class SignUpFragment : Fragment() {
         }
 
         // 4) Tap on profile image → Choose gallery or camera
-        binding.imageViewProfile.setOnClickListener {
-            showImageSourceDialog()
-        }
+        binding.imageViewProfile.setOnClickListener { showImageSourceDialog() }
 
         // 5) Navigate to SignInFragment if user already has an account
         binding.textViewAlreadyHaveAccount.setOnClickListener {
@@ -129,7 +132,6 @@ class SignUpFragment : Fragment() {
             val password = binding.editTextPassword.text.toString().trim()
             val selectedCountry = binding.spinnerCountry.selectedItem?.toString() ?: ""
 
-            // If spinner is empty or user didn't pick one
             if (binding.spinnerCountry.adapter == null || binding.spinnerCountry.adapter.count == 0) {
                 Toast.makeText(requireContext(), "Countries not loaded yet", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -138,7 +140,6 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please select a country", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || profileImageUrl == null) {
                 Toast.makeText(requireContext(), "All fields and a profile image are required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -183,11 +184,11 @@ class SignUpFragment : Fragment() {
         }
     }
 
+    private fun hideKeyboard(view: View) {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 
-        private fun hideKeyboard(view: View) {
-            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
-        }
     /**
      * Lets the user pick from gallery or take a new photo.
      */
@@ -195,7 +196,7 @@ class SignUpFragment : Fragment() {
         val options = arrayOf("Choose from Gallery", "Take a Photo")
         AlertDialog.Builder(requireContext())
             .setTitle("Select Image Source")
-            .setItems(options) { dialog, which ->
+            .setItems(options) { _, which ->
                 when (which) {
                     0 -> galleryLauncher.launch("image/*")
                     1 -> {
@@ -206,13 +207,8 @@ class SignUpFragment : Fragment() {
                                 "${requireContext().packageName}.fileprovider",
                                 photoFile
                             )
-                            // Use a local variable to avoid smart cast issues
-                            val uri = cameraImageUri
-                            if (uri != null) {
-                                cameraLauncher.launch(uri)
-                            } else {
-                                Toast.makeText(requireContext(), "Error: Image URI not created", Toast.LENGTH_SHORT).show()
-                            }
+                            cameraImageUri?.let { cameraLauncher.launch(it) }
+                                ?: Toast.makeText(requireContext(), "Error: Image URI not created", Toast.LENGTH_SHORT).show()
                         } catch (ex: IOException) {
                             Toast.makeText(requireContext(), "Error creating image file: ${ex.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -238,35 +234,59 @@ class SignUpFragment : Fragment() {
      * then updates [profileImageUrl] and [binding.imageViewProfile].
      */
     private fun uploadProfileImage(uri: Uri) {
-        Glide.with(requireContext())
-            .asBitmap()
-            .load(uri)
-            .override(720, 720)
-            .centerCrop()
-            .into(object : com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
-                ) {
-                    CloudinaryHelper.uploadBitmap(resource, onSuccess = { secureUrl ->
-                        profileImageUrl = secureUrl
-                        // Update UI with the new URL
-                        Glide.with(requireContext())
-                            .load(secureUrl)
-                            .override(720, 720)
-                            .centerCrop()
-                            .into(binding.imageViewProfile)
-                        Toast.makeText(requireContext(), "Profile image uploaded", Toast.LENGTH_SHORT).show()
-                    }, onError = { error ->
-                        Toast.makeText(requireContext(), "Image upload failed: $error", Toast.LENGTH_SHORT).show()
-                    })
+        binding.progressBarProfile.visibility = View.VISIBLE
+
+        // Create a local immutable target reference.
+        val target = object : Target {
+            override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+                Log.d("SignUpFragment", "Picasso loaded image, starting Cloudinary upload")
+                // Start a timeout fallback: If upload doesn't complete in 30 seconds, hide progress bar.
+                val timeoutRunnable = Runnable {
+                    if (binding.progressBarProfile.visibility == View.VISIBLE) {
+                        binding.progressBarProfile.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Image upload timed out", Toast.LENGTH_SHORT).show()
+                    }
                 }
-                override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) { }
-            })
+                binding.root.postDelayed(timeoutRunnable, 30000) // 30-second timeout
+
+                CloudinaryHelper.uploadBitmap(bitmap, onSuccess = { secureUrl ->
+                    binding.root.removeCallbacks(timeoutRunnable)
+                    profileImageUrl = secureUrl
+                    binding.progressBarProfile.visibility = View.GONE
+                    Picasso.get()
+                        .load(secureUrl)
+                        .resize(720,720)
+                        .centerCrop()
+                        .noFade()
+                        .into(binding.imageViewProfile)
+                    Toast.makeText(requireContext(), "Profile image uploaded", Toast.LENGTH_SHORT).show()
+                }, onError = { error ->
+                    binding.root.removeCallbacks(timeoutRunnable)
+                    binding.progressBarProfile.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Image upload failed: $error", Toast.LENGTH_SHORT).show()
+                })
+            }
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                binding.progressBarProfile.visibility = View.GONE
+                Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
+            }
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
+        }
+        // Retain this target in a property so it isn’t garbage-collected.
+        profileImageTarget = target
+
+        Picasso.get()
+            .load(uri)
+            .resize(720, 720)
+            .centerCrop()
+            .noFade()
+            .into(target)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        // Clear the target reference when view is destroyed.
+        profileImageTarget = null
     }
 }

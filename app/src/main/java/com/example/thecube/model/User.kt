@@ -2,9 +2,9 @@ package com.example.thecube.model
 
 data class User(
     val id: String = "",
-    val name: String = "",
+    var name: String = "",
     val email: String = "",
     val password: String = "",
-    val imageUrl: String = "",
+    var imageUrl: String = "",
     val country: String = ""
 )

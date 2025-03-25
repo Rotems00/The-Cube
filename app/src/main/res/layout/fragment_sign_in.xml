@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="#F1B765"
     android:clickable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.auth.SignInFragment">
@@ -17,7 +18,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign In"
-        android:textAppearance="?attr/textAppearanceHeadline4"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/my_font"
+        android:textAppearance="?attr/textAppearanceHeadline5"
+
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,11 +35,17 @@
     <!-- Email Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutEmail"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/RoundedFilledBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Email"
-        app:boxBackgroundMode="outline"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
+
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,17 +55,24 @@
             android:id="@+id/editTextEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:fontFamily="@font/my_font" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Password Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutPassword"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/RoundedFilledBox"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Password"
-        app:boxBackgroundMode="outline"
+
         app:layout_constraintTop_toBottomOf="@id/textInputLayoutEmail"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,7 +82,8 @@
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:fontFamily="@font/my_font" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Sign In Button -->
@@ -69,7 +92,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Sign In"
-        app:cornerRadius="8dp"
+        app:backgroundTint="@color/white"
+
+        android:fontFamily="@font/my_font"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
+        app:cornerRadius="12dp"
+
         app:layout_constraintTop_toBottomOf="@id/textInputLayoutPassword"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,22 +114,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Don't have an account? Sign up"
-        android:textColor="@android:color/holo_blue_dark"
+
+        android:fontFamily="@font/my_font"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/buttonSignIn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <!-- Example ImageView (optional, if present) -->
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="332dp"
-        android:layout_height="450dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:src="@drawable/cheff"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
         app:layout_constraintTop_toBottomOf="@id/textViewSignUp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:scaleType="centerCrop" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="332:450" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

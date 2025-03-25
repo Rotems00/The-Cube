@@ -7,4 +7,19 @@
     <string name="my_dishes">My Dishes</string>
     <string name="select_country">Select Country</string>
     <string name="flag_image">Flag Image</string>
+    <string name="like">Like</string>
+    <string name="dish_image">Dish Image</string>
+    <string-array name="difficulty_options">
+        <item>Easy</item>
+        <item>Medium</item>
+        <item>Hard</item>
+    </string-array>
+
+    <string-array name="type_dish_options">
+        <item>Regular</item>
+        <item>Vegan</item>
+        <item>Gluten-Free</item>
+    </string-array>
+
+
 </resources>

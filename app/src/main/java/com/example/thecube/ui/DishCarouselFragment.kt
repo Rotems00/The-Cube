@@ -1,20 +1,25 @@
 package com.example.thecube.ui
 
-import com.example.thecube.model.Dish
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.findNavController
+import com.example.thecube.R
 import com.example.thecube.databinding.FragmentDishCarouselBinding
 import com.example.thecube.local.AppDatabase
-import com.example.thecube.model.Country
-import com.example.thecube.remote.RetrofitInstance
 import com.example.thecube.repository.DishRepository
+import com.example.thecube.remote.RetrofitInstance
 import com.example.thecube.ui.DishAdapter
+import com.example.thecube.viewModel.SharedUserViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.MultiBrowseCarouselStrategy
+import com.google.android.material.carousel.CarouselSnapHelper
 import kotlinx.coroutines.launch
 
 class DishCarouselFragment : Fragment() {
@@ -23,9 +28,14 @@ class DishCarouselFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var dishAdapter: DishAdapter
+    private lateinit var dishRepository: DishRepository
 
-    // This variable stores the selected country's name passed in arguments.
     private var selectedCountry: String? = null
+    private var selectedDifficulty: String? = null
+    private var selectedTypeDish: String? = null
+
+    // Use the same shared ViewModel to cache countries.
+    private val sharedUserViewModel: SharedUserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,43 +48,85 @@ class DishCarouselFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve the selected country name from the bundle.
+        // Retrieve the selected country from arguments.
         selectedCountry = arguments?.getString("country")
-        Log.d("DishCarouselFragment", "Selected country: $selectedCountry")
+        // Also retrieve optional filters.
+        selectedDifficulty = arguments?.getString("difficulty")
+        selectedTypeDish = arguments?.getString("typeDish")
 
-        // Initialize the adapter and set up the RecyclerView.
-        dishAdapter = DishAdapter()
-        binding.recyclerViewDishes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        Log.d("DishCarouselFragment", "Selected country: $selectedCountry, difficulty: $selectedDifficulty, typeDish: $selectedTypeDish")
+
+        // Initialize the DishRepository.
+        val dishDao = AppDatabase.getDatabase(requireContext()).dishDao()
+        dishRepository = DishRepository(dishDao)
+
+        // Set up the DishAdapter with click callbacks.
+        dishAdapter = DishAdapter(
+            onItemClick = { dish ->
+                val bundle = Bundle().apply { putParcelable("dish", dish) }
+                view.findNavController().navigate(R.id.dishDetailFragment, bundle)
+            },
+            onLikeClicked = { updatedDish ->
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                if (currentUserId != null) {
+                    lifecycleScope.launch {
+                        dishRepository.updateDishLike(updatedDish)
+                        dishRepository.syncDishesByCountry(updatedDish.country)
+                    }
+                }
+            }
+        )
+
+        // Set up the RecyclerView with the multi-browse carousel strategy.
+        val carouselLayoutManager = CarouselLayoutManager(MultiBrowseCarouselStrategy())
+        binding.recyclerViewDishes.layoutManager = carouselLayoutManager
+
+        val snapHelper = CarouselSnapHelper()
+        snapHelper.attachToRecyclerView(binding.recyclerViewDishes)
+
         binding.recyclerViewDishes.adapter = dishAdapter
 
-        // Fetch the list of countries from the API for flag images and pass them to the adapter.
+        // Use sharedUserViewModel to load countries.
         lifecycleScope.launch {
             try {
-                val countriesList: List<Country> = RetrofitInstance.api.getCountries()
-                Log.d("DishCarouselFragment", "Fetched ${countriesList.size} countries from API")
+                val countriesList = if (sharedUserViewModel.countriesData.value.isNullOrEmpty()) {
+                    val fetched = RetrofitInstance.api.getCountries()
+                    sharedUserViewModel.countriesData.value = fetched
+                    fetched
+                } else {
+                    sharedUserViewModel.countriesData.value!!
+                }
+                Log.d("DishCarouselFragment", "Using ${countriesList.size} countries from SharedUserViewModel")
                 dishAdapter.setCountries(countriesList)
+
+                // Optionally, sync dishes for the selected country.
+                selectedCountry?.let { country ->
+                    dishRepository.syncDishesByCountry(country)
+                }
             } catch (e: Exception) {
-                Log.e("DishCarouselFragment", "Error fetching countries: ${e.message}")
+                Log.e("DishCarouselFragment", "Error fetching countries or syncing dishes: ${e.message}")
             }
         }
 
-        // Load the dishes for the selected country.
-        loadDishesForCountry()
-    }
-
-    private fun loadDishesForCountry() {
+        // Observe Room LiveData for dishes based on filters.
         selectedCountry?.let { country ->
-            Log.d("DishCarouselFragment", "Loading dishes for country: $country")
-            // Get the Room DAO and create an instance of DishRepository.
-            val dishDao = AppDatabase.getDatabase(requireContext()).dishDao()
-            val dishRepository = DishRepository(dishDao)
-            // Query Firestore for dishes matching the selected country.
-            dishRepository.getDishesByCountry(country) { dishes ->
-                Log.d("DishCarouselFragment", "Found ${dishes.size} dishes for $country")
-                dishes.forEach { dish ->
-                    Log.d("DishCarouselFragment", "Dish: ${dish.dishName}, Country: ${dish.country}")
-                }
-                dishAdapter.submitList(dishes)
+            if (!selectedDifficulty.isNullOrEmpty() && !selectedTypeDish.isNullOrEmpty() &&
+                !selectedDifficulty.equals("All", ignoreCase = true) &&
+                !selectedTypeDish.equals("All", ignoreCase = true)
+            ) {
+                // If specific filters are provided, query by both difficulty and type.
+                dishRepository.getDishesByCountryAndFilters(country, selectedDifficulty!!, selectedTypeDish!!)
+                    .observe(viewLifecycleOwner) { dishes ->
+                        Log.d("DishCarouselFragment", "Filtered LiveData: Found ${dishes.size} dishes for $country with difficulty=$selectedDifficulty and typeDish=$selectedTypeDish, data = $dishes")
+                        dishAdapter.submitList(dishes)
+                    }
+            } else {
+                // Otherwise, load all dishes for the country.
+                dishRepository.getDishesByCountryFromRoom(country)
+                    .observe(viewLifecycleOwner) { dishes ->
+                        Log.d("DishCarouselFragment", "LiveData update: Found ${dishes.size} dishes for $country, data = $dishes")
+                        dishAdapter.submitList(dishes)
+                    }
             }
         } ?: Log.e("DishCarouselFragment", "No country provided!")
     }
