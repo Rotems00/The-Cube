@@ -1,19 +1,28 @@
 package com.example.thecube.ui.auth
 
 import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentSignInBinding
+import com.example.thecube.local.AppDatabase
+import com.example.thecube.remote.RetrofitInstance
+import com.example.thecube.repository.CommentRepository
+import com.example.thecube.viewModel.DishViewModel
+import com.example.thecube.viewModel.SharedUserViewModel
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class SignInFragment : Fragment() {
 
@@ -21,12 +30,15 @@ class SignInFragment : Fragment() {
     private val binding get() = _binding!!
     private val TAG = "SignInFragment"
 
+    private lateinit var dishViewModel: DishViewModel
+    // Obtain the shared view model from the activity scope.
+    private val sharedUserViewModel: SharedUserViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSignInBinding.inflate(inflater, container, false)
-        // Make the root layout focusable and clickable so it can receive touch events.
         binding.signInRoot.apply {
             isClickable = true
             isFocusableInTouchMode = true
@@ -36,15 +48,14 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dishViewModel = ViewModelProvider(requireActivity()).get(DishViewModel::class.java)
 
-        // Hide keyboard when user taps outside input fields
         binding.signInRoot.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 hideKeyboard(v)
-                // Optionally clear focus from any view
                 v.clearFocus()
             }
-            false // Allow other events to be processed
+            false
         }
 
         binding.textViewSignUp.setOnClickListener {
@@ -60,10 +71,22 @@ class SignInFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Use FirebaseAuth to sign in
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        // Load countries data and update the shared view model.
+                        lifecycleScope.launch {
+                            try {
+                                val commentDao = AppDatabase.getDatabase(requireContext()).commentDao()
+                                val commentRepo = CommentRepository(commentDao)
+                                commentRepo.syncAllCommentsFromFirestore()
+                                val countries = RetrofitInstance.api.getCountries()
+                                sharedUserViewModel.countriesData.value = countries
+                                Log.d(TAG, "Loaded ${countries.size} countries")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error loading countries: ${e.message}")
+                            }
+                        }
                         Log.d(TAG, "Sign in successful")
                         Toast.makeText(requireContext(), "Sign in successful", Toast.LENGTH_SHORT).show()
                         findNavController().navigate(R.id.action_signInFragment_to_homeFragment)

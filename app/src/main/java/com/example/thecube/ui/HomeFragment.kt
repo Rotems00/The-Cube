@@ -1,35 +1,36 @@
 package com.example.thecube.ui
 
-import android.animation.Animator
-import android.animation.ObjectAnimator
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
+import com.squareup.picasso.Picasso
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentHomeBinding
-import com.example.thecube.local.AppDatabase
 import com.example.thecube.model.Country
-import com.example.thecube.repository.LocalRecipeRepository
 import com.example.thecube.remote.RetrofitInstance
-import com.example.thecube.repository.DishRepository
+import com.example.thecube.viewModel.SharedUserViewModel
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    var isAnimating = false
-    private var cubeAnimator: ObjectAnimator? = null
 
-    // List of famous countries fetched from the Countries API
+    // Local copy for convenience; we'll update it once fetched.
     private var countriesList: List<Country> = emptyList()
+
+    // Shared ViewModel to cache countries data.
+    private val sharedUserViewModel: SharedUserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,87 +42,127 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fetchCountries()
+        hideKeyboard()
+        val difficultyOptions = arrayOf("Select Difficulty", "Easy", "Medium", "Hard")
+        val difficultyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, difficultyOptions)
+        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerDifficulty.adapter = difficultyAdapter
 
-        // When the cube image is tapped, call regenerateCube()
-        binding.cubeImageView.setOnClickListener {
-            regenerateCube()
-        }
-    }
+        val typeOptions = arrayOf("Select Diet", "Regular", "Vegan", "Gluten-Free")
+        val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, typeOptions)
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerTypeDish.adapter = typeAdapter
 
-    private fun fetchCountries() {
+        // Fetch the countries once and cache them in the shared ViewModel.
         lifecycleScope.launch {
             try {
-                val allCountries = RetrofitInstance.api.getCountries()
-                val famousCountriesSet = setOf(
-                    "United States"
-                )
-                countriesList = allCountries.filter { it.name.common in famousCountriesSet }
-                Log.d("HomeFragment", "Fetched ${countriesList.size} famous countries")
+                val fetchedCountries = RetrofitInstance.api.getCountries()
+                // Define the allowed countries.
+                val allowedCountries = setOf("China", "Argentina", "United States", "Israel", "Romania", "Germany")
+                // Filter the fetched list based on allowed countries.
+                countriesList = fetchedCountries.filter { country ->
+                    // Compare the common name, ignoring case.
+                    allowedCountries.any { it.equals(country.name.common, ignoreCase = true) }
+                }
+                sharedUserViewModel.countriesData.value = countriesList
+                Log.d("HomeFragment", "Fetched ${countriesList.size} allowed countries.")
             } catch (e: Exception) {
-                Log.e("HomeFragment", "Error fetching countries", e)
+                Log.e("HomeFragment", "Error fetching countries: ${e.message}")
             }
         }
-    }
 
-    fun regenerateCube() {
-        if (isAnimating) return  // ignore new requests while animating
 
-        isAnimating = true
-        val extraSpins = 5
-        val randomAngle = Random.nextFloat() * 360
-        val totalRotation = extraSpins * 360 + randomAngle
+        // Set up the VideoView with your MP4 file from res/raw.
+        val videoUri = Uri.parse("android.resource://${requireContext().packageName}/${R.raw.cube_video}")
+        binding.cubeVideoView.setVideoURI(videoUri)
 
-        cubeAnimator = ObjectAnimator.ofFloat(binding.cubeImageView, "rotationY", 0f, totalRotation).apply {
-            duration = 3000
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator) { }
-                override fun onAnimationCancel(animation: Animator) {
-                    isAnimating = false
+        // When the video is clicked, start playing it.
+        binding.cubeVideoView.setOnClickListener {
+            binding.cubeVideoView.start()
+        }
+
+        // When the video finishes playing, update UI and navigate after a delay.
+        binding.cubeVideoView.setOnCompletionListener {
+            val allCountries = sharedUserViewModel.countriesData.value
+            if (!allCountries.isNullOrEmpty()) {
+                // Define allowed country names.
+                val allowedCountries = setOf("China", "Argentina", "United States", "Israel", "Romania", "Germany")
+                // Filter the list to include only allowed countries.
+                val filteredCountries = allCountries.filter { country ->
+                    allowedCountries.contains(country.name.common.trim())
                 }
-                override fun onAnimationRepeat(animation: Animator) { }
-                override fun onAnimationEnd(animation: Animator) {
-                    if (_binding != null) {
-                        if (countriesList.isNotEmpty()) {
-                            val selectedCountry = countriesList.random()
-                            binding.textViewCountry.text = "Your country: ${selectedCountry.name.common}"
-                            Glide.with(this@HomeFragment)
-                                .load(selectedCountry.flags.png)
-                                .into(binding.flagImageView)
+                Log.d("HomeFragment", "Allowed countries before exclusion: ${filteredCountries.map { it.name.common }}")
 
-                            // Use DishRepository to fetch dishes from Firestore (global data)
-                            val dishDao = AppDatabase.getDatabase(requireContext()).dishDao()
-                            val dishRepository = DishRepository(dishDao)
-                            dishRepository.getDishesByCountry(selectedCountry.name.common) { dishes ->
-                                Log.d("HomeFragment", "Found ${dishes.size} dishes for ${selectedCountry.name.common}")
-                                if (dishes.isEmpty()) {
-                                    binding.textViewCountry.append("\nNo meals found for this country.")
-                                }
-                                // Otherwise, do nothing – the global feed will show the dishes later.
-                            }
+                // Retrieve user's signed-up country from Firestore via SharedUserViewModel.
+                val userCountry = sharedUserViewModel.currentUserData.value?.country?.trim() ?: ""
 
-                            binding.root.postDelayed({
-                                val bundle = Bundle().apply {
-                                    putString("country", selectedCountry.name.common)
-                                }
-                                findNavController().navigate(R.id.action_global_dishCarouselFragment, bundle)
-                            }, 2000)
-                        } else {
-                            binding.textViewCountry.text = "No country data available"
+                // Exclude the user's country from the random selection.
+                val randomCandidates = if (userCountry.isNotEmpty()) {
+                    filteredCountries.filter { !it.name.common.trim().equals(userCountry, ignoreCase = true) }
+                } else {
+                    filteredCountries
+                }
+                Log.d("HomeFragment", "Allowed countries after exclusion: ${randomCandidates.map { it.name.common }}")
+
+                if (randomCandidates.isNotEmpty()) {
+                    // Pick a random country from the candidate list.
+                    val randomIndex = (randomCandidates.indices).random()
+                    val selectedCountry = randomCandidates[randomIndex]
+                    binding.textViewCountry.text = "Your country: ${selectedCountry.name.common}"
+
+                    // Load the country's flag using Picasso.
+                    Picasso.get()
+                        .load(selectedCountry.flags.png)
+                        .resize(720, 720)
+                        .noFade()
+                        .centerCrop()
+                        .into(binding.flagImageView)
+
+                    // Retrieve spinner selections.
+                    val spinnerDifficulty = binding.spinnerDifficulty.selectedItem?.toString() ?: "Select Difficulty"
+                    val spinnerTypeDish = binding.spinnerTypeDish.selectedItem?.toString() ?: "Select Diet"
+
+                    // If user left defaults, interpret them as "Easy" and "Regular"
+                    val selectedDifficulty = if (spinnerDifficulty.equals("Select Difficulty", ignoreCase = true)) "Easy" else spinnerDifficulty
+                    val selectedTypeDish = if (spinnerTypeDish.equals("Select Diet", ignoreCase = true)) "Regular" else spinnerTypeDish
+
+                    // Create a bundle with the filters.
+                    val bundle = Bundle().apply {
+                        putString("country", selectedCountry.name.common)
+                        if (!selectedDifficulty.equals("All", ignoreCase = true)) {
+                            putString("difficulty", selectedDifficulty)
+                        }
+                        if (!selectedTypeDish.equals("All", ignoreCase = true)) {
+                            putString("typeDish", selectedTypeDish)
                         }
                     }
-                    isAnimating = false
+
+                    // Delay navigation slightly.
+                    binding.root.postDelayed({
+                        findNavController().navigate(R.id.action_global_dishCarouselFragment, bundle)
+                    }, 1200)
+                } else {
+                    binding.textViewCountry.text = "No allowed countries available"
+                    Log.e("HomeFragment", "Filtered countries list is empty after excluding user's country.")
                 }
-
-
-            })
-            start()
+            } else {
+                binding.textViewCountry.text = "No country data available"
+                Log.e("HomeFragment", "Shared countries data is empty.")
+            }
         }
+
+
+
+
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        cubeAnimator?.cancel()  // cancel any running animation
         _binding = null
     }
 }

@@ -3,47 +3,43 @@ package com.example.thecube.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.thecube.R
-import com.example.thecube.model.Dish
+import com.example.thecube.databinding.ItemDishBinding
 import com.example.thecube.model.Country
-import com.example.thecube.ui.MyDishesFragmentDirections
+import com.example.thecube.model.Dish
+import com.example.thecube.ui.ProfileFragmentDirections
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
 
 class DishAdapter(
     private val onItemClick: ((Dish) -> Unit)? = null,
-    private var countries: List<Country> = emptyList() // list of countries from API
+    private var countries: List<Country> = emptyList(),
+    private val onLikeClicked: ((Dish) -> Unit)? = null
 ) : ListAdapter<Dish, DishAdapter.DishViewHolder>(DishDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DishViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_dish, parent, false)
-        return DishViewHolder(view)
+        val binding = ItemDishBinding.bind(view)
+        return DishViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: DishViewHolder, position: Int) {
         val dish = getItem(position)
-        holder.bind(dish, countries)
+        holder.bind(dish, countries, onLikeClicked)
         holder.itemView.setOnClickListener { view ->
-            // Check if the dish belongs to the current user
-            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-            Log.d("DishAdapter", "Current user: $currentUserId, Dish owner: ${dish.userId}")
-            if (currentUserId != null && dish.userId == currentUserId) {
-                // Navigate to EditDishFragment using Safe Args
-                val action = MyDishesFragmentDirections.actionMyDishesFragmentToEditDishFragment(dish)
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            if (dish.userId == currentUserId) {
+                // Navigate to edit screen using Safe Args.
+                val action = ProfileFragmentDirections.actionProfileFragmentToEditDishFragment(dish)
                 view.findNavController().navigate(action)
             } else {
-                // Navigate to DishDetailFragment using a bundle
-                val bundle = Bundle().apply {
-                    putParcelable("dish", dish)
-                }
+                val bundle = Bundle().apply { putParcelable("dish", dish) }
                 view.findNavController().navigate(R.id.dishDetailFragment, bundle)
             }
         }
@@ -54,36 +50,82 @@ class DishAdapter(
         notifyDataSetChanged()
     }
 
-    class DishViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val dishNameTextView: TextView = itemView.findViewById(R.id.textViewDishName)
-        private val dishImageView: ImageView = itemView.findViewById(R.id.imageViewDish)
-        private val flagImageView: ImageView = itemView.findViewById(R.id.imageViewFlag)
+    class DishViewHolder(private val binding: ItemDishBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(dish: Dish, countries: List<Country>) {
-            dishNameTextView.text = dish.dishName
-            Glide.with(itemView.context)
+        fun bind(dish: Dish, countries: List<Country>, onLikeClicked: ((Dish) -> Unit)?) {
+            binding.textViewDishName.text = dish.dishName
+
+            // Load dish image.
+            Picasso.get()
                 .load(dish.imageUrl)
-                .into(dishImageView)
+                .resize(720, 720)
+                .noFade()
+                .centerCrop()
+                .into(binding.imageViewDish)
 
-            val dishCountry = dish.country.trim()
-            Log.d("DishAdapter", "Dish country: '$dishCountry'")
-            val matchingCountry = countries.find { country ->
-                val apiCountry = country.name.common.trim()
-                Log.d("DishAdapter", "Comparing with API country: '$apiCountry'")
-                // Use exact match, or check if one string contains the other (ignoring case)
-                apiCountry.equals(dishCountry, ignoreCase = true) ||
-                        apiCountry.contains(dishCountry, ignoreCase = true) ||
-                        dishCountry.contains(apiCountry, ignoreCase = true)
+            // Set like icon and count.
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            val isLikedByCurrentUser = dish.likedBy.contains(currentUserId)
+            val likeIconRes = if (isLikedByCurrentUser) R.drawable.heart_icon else R.drawable.heart_icon_no
+            binding.imageViewLike.setImageResource(likeIconRes)
+            binding.textViewLikeCount.text = dish.countLikes.toString()
+
+            // Toggle like state on click.
+            binding.imageViewLike.setOnClickListener {
+                val updatedLikedBy = dish.likedBy.toMutableList().apply {
+                    if (contains(currentUserId)) remove(currentUserId) else add(currentUserId)
+                }
+                val computedCount = updatedLikedBy.size
+                val updatedDish = dish.copy(likedBy = updatedLikedBy, countLikes = computedCount)
+                binding.imageViewLike.setImageResource(
+                    if (updatedLikedBy.contains(currentUserId)) R.drawable.heart_icon else R.drawable.heart_icon_no
+                )
+                binding.textViewLikeCount.text = computedCount.toString()
+                Log.d("DishAdapter", "After clicking like, updatedLikedBy = $updatedLikedBy, count = $computedCount")
+                onLikeClicked?.invoke(updatedDish)
+                Log.d("DishAdapter", "After callback, updatedDish.likedBy = ${updatedDish.likedBy}, countLikes = ${updatedDish.countLikes}")
             }
-            if (matchingCountry != null) {
-                Log.d("DishAdapter", "Matched API country: '${matchingCountry.name.common}'")
-                Glide.with(itemView.context)
-                    .load(matchingCountry.flags.png)
-                    .into(flagImageView)
+
+            // Flag logic.
+            if (!dish.flagImageUrl.isNullOrEmpty()) {
+                Log.d("DishAdapter", "Loading flag from dish.flagImageUrl: ${dish.flagImageUrl}")
+                Picasso.get()
+                    .load(dish.flagImageUrl)
+                    .resize(720, 720)
+                    .noFade()
+                    .centerCrop()
+                    .into(binding.imageViewFlag)
             } else {
-                Log.w("DishAdapter", "No matching country found for: '$dishCountry'")
-                flagImageView.setImageResource(R.drawable.placeholder_flag)
+                val dishCountry = dish.country.trim()
+                val matchingCountry = countries.find { country ->
+                    country.name.common.trim().equals(dishCountry, ignoreCase = true)
+                }
+                if (matchingCountry != null) {
+                    Log.d("DishAdapter", "Matching country found: ${matchingCountry.name.common} for dish country: ${dish.country}")
+                    val flagUrl = matchingCountry.flags.png
+                    Log.d("DishAdapter", "Loading flag from matchingCountry.flags.png: $flagUrl")
+                    Picasso.get()
+                        .load(flagUrl)
+                        .resize(720, 720)
+                        .noFade()
+                        .centerCrop()
+                        .into(binding.imageViewFlag)
+                } else {
+                    Log.d("DishAdapter", "No matching country found for dish country: ${dish.country}")
+                    binding.imageViewFlag.setImageResource(R.drawable.placeholder_flag)
+                }
             }
+
+            // --- Difficulty Indicator ---
+            binding.textViewDifficulty.text = dish.difficulty
+
+            val difficultyColor = when (dish.difficulty) {
+                "Easy" -> ContextCompat.getColor(binding.root.context, R.color.green)
+                "Medium" -> ContextCompat.getColor(binding.root.context, R.color.yellow)
+                "Hard" -> ContextCompat.getColor(binding.root.context, R.color.red)
+                else -> ContextCompat.getColor(binding.root.context, R.color.defaultDifficultyColor)
+            }
+            binding.cardDifficulty.setCardBackgroundColor(difficultyColor)
         }
     }
 }

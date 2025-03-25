@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/signUpFragment">
+    app:startDestination="@id/splashFragment">
 
     <!-- Sign Up Fragment -->
     <fragment
@@ -61,25 +61,29 @@
         <action
             android:id="@+id/action_profileFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
-    </fragment>
-
-    <!-- My Dishes Fragment -->
-    <fragment
-        android:id="@+id/myDishesFragment"
-        android:name="com.example.thecube.ui.MyDishesFragment"
-        android:label="My Dishes"
-        tools:layout="@layout/fragment_my_dishes">
         <action
-            android:id="@+id/action_myDishesFragment_to_editDishFragment"
+            android:id="@+id/action_profileFragment_to_dishDetailFragment"
+            app:destination="@id/dishDetailFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_editDishFragment"
             app:destination="@id/editDishFragment" />
     </fragment>
+
+
+
 
     <!-- Favourite Dishes Fragment -->
     <fragment
         android:id="@+id/favouriteFragment"
         android:name="com.example.thecube.ui.FavouriteFragment"
         android:label="Favourite Dishes"
-        tools:layout="@layout/fragment_favourite" />
+        tools:layout="@layout/fragment_favourite">
+        <action
+            android:id="@+id/action_favouriteFragment_to_editDishFragment"
+            app:destination="@id/editDishFragment" />
+
+    </fragment>
+
 
     <!-- Add Dish Fragment -->
     <fragment
@@ -87,6 +91,17 @@
         android:name="com.example.thecube.ui.AddDishFragment"
         android:label="Add Dish"
         tools:layout="@layout/fragment_add_dish" />
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.thecube.ui.SplashFragment"
+        android:label="Splash"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+
 
     <!-- Edit Dish Fragment -->
     <fragment
@@ -97,7 +112,12 @@
         <argument
             android:name="dish"
             app:argType="com.example.thecube.model.Dish" />
+        <action
+            android:id="@+id/action_editDishFragment_to_commentFragment"
+            app:destination="@id/commentFragment" />
     </fragment>
+
+    <!-- Dish Detail Fragment -->
     <fragment
         android:id="@+id/dishDetailFragment"
         android:name="com.example.thecube.ui.DishDetailFragment"
@@ -106,6 +126,9 @@
         <argument
             android:name="dish"
             app:argType="com.example.thecube.model.Dish" />
+        <action
+            android:id="@+id/action_dishDetailFragment_to_commentFragment"
+            app:destination="@id/commentFragment" />
     </fragment>
 
     <!-- (Optional) Comment Fragment -->

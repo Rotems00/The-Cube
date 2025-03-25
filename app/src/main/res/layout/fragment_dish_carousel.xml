@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".ui.DishCarouselFragment">
+    tools:context=".ui.DishCarouselFragment"
+    android:background="#F1B765">
 
     <!-- Header/Title for the carousel -->
     <TextView
@@ -20,12 +21,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:paddingBottom="8dp" />
 
-    <!-- Horizontal RecyclerView for dish items with a fixed height -->
+    <!-- Carousel RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewDishes"
         android:layout_width="0dp"
         android:layout_height="300dp"
-        android:orientation="horizontal"
         android:clipToPadding="false"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"

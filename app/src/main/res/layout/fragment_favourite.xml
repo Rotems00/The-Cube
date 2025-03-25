@@ -1,19 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/favourite_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F1B765">
 
-    <!-- RecyclerView for favourite dishes -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_favourites"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Modern Material Toolbar as the top app bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimarySurface"
+        android:title="My Favorites"
+        android:titleTextColor="?attr/colorOnPrimary"
+        app:layout_scrollFlags="scroll|enterAlways" />
+
+    <!-- Container for centering content below the toolbar -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp">
+
+            <!-- Header Greeting -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textViewHeader"
+                style="@style/TextAppearance.Material3.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:fontFamily="@font/my_font"
+                android:layout_height="wrap_content"
+                android:text="YOUR FAVOURITE DISHES"
+                android:textColor="?attr/colorOnSurface" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp" />
+
+            <!-- Favorites Carousel (Horizontal RecyclerView) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_favourites"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp" />
+
+            <!-- Footer Text -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textViewFooter"
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/my_font"
+                android:text="YOU CAN DISLIKE THE DISHES BY TOUCHING ON THE HEARTS"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

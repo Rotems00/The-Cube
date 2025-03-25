@@ -1,45 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/commentRoot"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/commentRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F1B765"
     android:padding="16dp">
 
-    <!-- RecyclerView for displaying comments -->
+    <!-- RecyclerView for Comments with a temporary background color -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewComments"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="#CCCCCC"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/layoutCommentInput"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayoutComment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Comment input layout -->
-    <LinearLayout
-        android:id="@+id/layoutCommentInput"
+    <!-- TextInputLayout for entering a new comment -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutComment"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonPostComment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+        android:layout_marginBottom="8dp"
+        android:hint="Enter your comment">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextComment"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Write a comment..." />
+            android:fontFamily="@font/my_font"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/buttonPostComment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Post" />
-    </LinearLayout>
+    <!-- Button to post the comment -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonPostComment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomStart="20dp"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusTopEnd="20dp"
+        app:boxCornerRadiusTopStart="20dp"
+        android:textColor="@color/black"
+        android:text="Post Comment"
+
+        android:fontFamily="@font/my_font"
+        app:cornerRadius="20dp"
+        android:backgroundTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
