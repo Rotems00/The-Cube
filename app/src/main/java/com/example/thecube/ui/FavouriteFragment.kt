@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -48,7 +49,9 @@ class FavouriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // If you prefer manual initialization, uncomment the following:
         // dishViewModel = ViewModelProvider(requireActivity()).get(DishViewModel::class.java)
-
+        val customFont = ResourcesCompat.getFont(requireContext(), R.font.my_font)
+        binding.textViewHeader.typeface = customFont
+        binding.textViewFooter.typeface = customFont
         adapter = FavouriteDishesAdapter(
             onItemClick = { dish ->
                 if (dish.userId == currentUserId) {

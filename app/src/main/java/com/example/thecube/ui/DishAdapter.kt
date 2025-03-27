@@ -116,7 +116,7 @@ class DishAdapter(
                 }
             }
 
-            // --- Difficulty Indicator ---
+
             binding.textViewDifficulty.text = dish.difficulty
 
             val difficultyColor = when (dish.difficulty) {

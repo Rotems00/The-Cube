@@ -46,12 +46,14 @@
                 android:padding="4dp" />
 
             <!-- Progress Bar added for UX -->
-            <ProgressBar
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/uploadProgressBar"
-                style="?android:attr/progressBarStyle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
+                app:lottie_rawRes="@raw/loading"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
                 android:visibility="gone" />
         </FrameLayout>
 

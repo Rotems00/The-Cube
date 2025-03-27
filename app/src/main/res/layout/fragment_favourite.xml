@@ -15,7 +15,8 @@
         android:background="?attr/colorPrimarySurface"
         android:title="My Favorites"
         android:titleTextColor="?attr/colorOnPrimary"
-        app:layout_scrollFlags="scroll|enterAlways" />
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:titleTextAppearance="@style/ToolbarTitleAppearance" />
 
     <!-- Container for centering content below the toolbar -->
     <FrameLayout
@@ -33,9 +34,8 @@
             <!-- Header Greeting -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/textViewHeader"
-                style="@style/TextAppearance.Material3.HeadlineMedium"
+                style="@style/MyHeadlineStyle"
                 android:layout_width="wrap_content"
-                android:fontFamily="@font/my_font"
                 android:layout_height="wrap_content"
                 android:text="YOUR FAVOURITE DISHES"
                 android:textColor="?attr/colorOnSurface" />
@@ -60,13 +60,11 @@
             <!-- Footer Text -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/textViewFooter"
-                style="@style/TextAppearance.Material3.BodyMedium"
+                style="@style/MyBodyStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/my_font"
                 android:text="YOU CAN DISLIKE THE DISHES BY TOUCHING ON THE HEARTS"
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </FrameLayout>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
