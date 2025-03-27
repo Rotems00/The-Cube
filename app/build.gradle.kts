@@ -84,6 +84,7 @@ dependencies {
     kapt (libs.androidx.room.compiler.v250 ) // For annotation processing
     implementation (libs.androidx.room.ktx.v250 ) // Optional, for Kotlin extensio
     implementation (libs.picasso)  // Ensure the correct version
+    implementation (libs.lottie)
 
 
 

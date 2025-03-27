@@ -141,11 +141,14 @@
             android:scaleType="fitCenter" />
 
         <!-- Spinner / Progress Bar (shown while uploading/loading) -->
-        <ProgressBar
+        <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/progressBarProfile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            app:lottie_rawRes="@raw/loading"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
             android:visibility="gone" />
     </FrameLayout>
 

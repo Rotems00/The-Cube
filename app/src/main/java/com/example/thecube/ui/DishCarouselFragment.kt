@@ -14,7 +14,6 @@ import com.example.thecube.databinding.FragmentDishCarouselBinding
 import com.example.thecube.local.AppDatabase
 import com.example.thecube.repository.DishRepository
 import com.example.thecube.remote.RetrofitInstance
-import com.example.thecube.ui.DishAdapter
 import com.example.thecube.viewModel.SharedUserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.android.material.carousel.CarouselLayoutManager
@@ -114,21 +113,33 @@ class DishCarouselFragment : Fragment() {
                 !selectedDifficulty.equals("All", ignoreCase = true) &&
                 !selectedTypeDish.equals("All", ignoreCase = true)
             ) {
-                // If specific filters are provided, query by both difficulty and type.
                 dishRepository.getDishesByCountryAndFilters(country, selectedDifficulty!!, selectedTypeDish!!)
                     .observe(viewLifecycleOwner) { dishes ->
-                        Log.d("DishCarouselFragment", "Filtered LiveData: Found ${dishes.size} dishes for $country with difficulty=$selectedDifficulty and typeDish=$selectedTypeDish, data = $dishes")
-                        dishAdapter.submitList(dishes)
+                        Log.d("DishCarouselFragment", "Filtered LiveData: Found ${dishes.size} dishes")
+                        updateUIForDishes(dishes)
                     }
             } else {
-                // Otherwise, load all dishes for the country.
                 dishRepository.getDishesByCountryFromRoom(country)
                     .observe(viewLifecycleOwner) { dishes ->
-                        Log.d("DishCarouselFragment", "LiveData update: Found ${dishes.size} dishes for $country, data = $dishes")
-                        dishAdapter.submitList(dishes)
+                        Log.d("DishCarouselFragment", "LiveData update: Found ${dishes.size} dishes")
+                        updateUIForDishes(dishes)
                     }
             }
         } ?: Log.e("DishCarouselFragment", "No country provided!")
+    }
+
+    // Helper function to update UI based on the list of dishes.
+    private fun updateUIForDishes(dishes: List<com.example.thecube.model.Dish>) {
+        if (dishes.isEmpty()) {
+            binding.recyclerViewDishes.visibility = View.GONE
+            binding.emptyAnimationView.visibility = View.VISIBLE
+            binding.emptyAnimationView.playAnimation()
+        } else {
+            binding.emptyAnimationView.cancelAnimation()
+            binding.emptyAnimationView.visibility = View.GONE
+            binding.recyclerViewDishes.visibility = View.VISIBLE
+            dishAdapter.submitList(dishes)
+        }
     }
 
     override fun onDestroyView() {

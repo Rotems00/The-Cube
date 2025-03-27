@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -21,6 +20,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.airbnb.lottie.LottieAnimationView
 import com.example.thecube.R
 import com.example.thecube.databinding.FragmentAddDishBinding
 import com.example.thecube.repository.UserRepository
@@ -71,6 +71,7 @@ class AddDishFragment : Fragment() {
                         }
                         override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                             picassoTargets.remove(this)
+                            hideUploadProgress()
                             Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
                         }
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
@@ -163,13 +164,11 @@ class AddDishFragment : Fragment() {
 
         if (dishName.isEmpty() || dishDescription.isEmpty() || ingredients.isEmpty() || steps.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            // Re-enable the button if required fields are missing
             binding.buttonSubmitDish.isEnabled = true
             return
         }
         if (uploadedImageUrl == null) {
             Toast.makeText(requireContext(), "Please upload an image", Toast.LENGTH_SHORT).show()
-            // Re-enable the button if image is missing
             binding.buttonSubmitDish.isEnabled = true
             return
         }
@@ -208,17 +207,14 @@ class AddDishFragment : Fragment() {
                     .addOnFailureListener { e ->
                         Log.e("AddDishFragment", "Error saving dish to Firestore: ${e.message}")
                         Toast.makeText(requireContext(), "Error saving dish", Toast.LENGTH_SHORT).show()
-                        // Re-enable the button on error so the user can try again
                         binding.buttonSubmitDish.isEnabled = true
                     }
             } else {
                 Toast.makeText(requireContext(), "Failed to retrieve user profile", Toast.LENGTH_SHORT).show()
-                // Re-enable the button if the user profile could not be retrieved
                 binding.buttonSubmitDish.isEnabled = true
             }
         }
     }
-
 
     private fun hideKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -226,8 +222,8 @@ class AddDishFragment : Fragment() {
     }
 
     private fun uploadImage(uri: Uri) {
-        // Show the progress bar when starting the upload.
-        binding.uploadProgressBar.visibility = View.VISIBLE
+        // Show the Lottie progress bar and start animation.
+        showUploadProgress()
 
         val target = object : Target {
             override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
@@ -236,7 +232,7 @@ class AddDishFragment : Fragment() {
             }
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                 picassoTargets.remove(this)
-                binding.uploadProgressBar.visibility = View.GONE
+                hideUploadProgress()
                 Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
             }
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
@@ -249,7 +245,6 @@ class AddDishFragment : Fragment() {
             .into(target)
     }
 
-
     private fun uploadCapturedImage(bitmap: Bitmap) {
         com.example.thecube.utils.CloudinaryHelper.uploadBitmap(bitmap, onSuccess = { secureUrl ->
             uploadedImageUrl = secureUrl
@@ -260,17 +255,25 @@ class AddDishFragment : Fragment() {
                 .into(binding.imageViewDishUpload)
             // Hide the "Tap to upload" overlay after successful upload.
             binding.textOverlay.visibility = View.GONE
-            // Hide the progress bar as well (if showing)
-            binding.uploadProgressBar.visibility = View.GONE
+            hideUploadProgress()
             Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show()
         }, onError = { error ->
             Log.e("AddDishFragment", "Image upload failed: $error")
-            // Hide progress bar if there's an error
-            binding.uploadProgressBar.visibility = View.GONE
+            hideUploadProgress()
             Toast.makeText(requireContext(), "Image upload failed: $error", Toast.LENGTH_SHORT).show()
         })
     }
 
+    // Utility functions to show and hide the Lottie animation.
+    private fun showUploadProgress() {
+        binding.uploadProgressBar.visibility = View.VISIBLE
+        binding.uploadProgressBar.playAnimation()
+    }
+
+    private fun hideUploadProgress() {
+        binding.uploadProgressBar.cancelAnimation()
+        binding.uploadProgressBar.visibility = View.GONE
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

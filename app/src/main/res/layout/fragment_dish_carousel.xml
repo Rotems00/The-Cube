@@ -21,6 +21,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:paddingBottom="8dp" />
 
+    <!-- Lottie Animation to show when no data is available -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/emptyAnimationView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:lottie_rawRes="@raw/empty"
+    app:lottie_autoPlay="true"
+    app:lottie_loop="true"
+    android:visibility="gone"
+    app:layout_constraintTop_toBottomOf="@id/textViewCarouselTitle"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Carousel RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewDishes"

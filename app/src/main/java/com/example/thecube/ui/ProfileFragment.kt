@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
+    // Using a backing property ensures that we get a clear crash if we access binding outside of the view lifecycle.
     private val binding get() = _binding!!
 
     // Shared ViewModel for current user data.
@@ -285,12 +286,21 @@ class ProfileFragment : Fragment() {
     private fun uploadProfileImage(bitmap: Bitmap) {
         com.example.thecube.utils.CloudinaryHelper.uploadBitmap(bitmap,
             onSuccess = { secureUrl ->
-                Picasso.get().load(secureUrl).into(binding.profileImage)
-                Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
-                updateUserProfilePic(secureUrl!!)
+                // Ensure the binding is still available before accessing it.
+                if (_binding == null) return@uploadBitmap
+                // Update UI on the main thread.
+                requireActivity().runOnUiThread {
+                    Picasso.get().load(secureUrl).into(binding.profileImage)
+                    Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
+                    updateUserProfilePic(secureUrl!!)
+                }
             },
             onError = { error ->
-                Toast.makeText(requireContext(), "Error uploading image: $error", Toast.LENGTH_SHORT).show()
+                // Ensure the binding is still available before accessing it.
+                if (_binding == null) return@uploadBitmap
+                requireActivity().runOnUiThread {
+                    Toast.makeText(requireContext(), "Error uploading image: $error", Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }

@@ -10,9 +10,8 @@
     android:background="#F1B765"
     tools:context=".ui.HomeFragment">
 
-    <!-- Video Card occupying the top half (or 50%) -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cubeVideoCard"
+        android:id="@+id/cubeCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,55 +23,42 @@
         app:cardElevation="4dp"
         android:backgroundTint="@color/white">
 
-        <VideoView
-            android:id="@+id/cubeVideoView"
+        <!-- Lottie Animation -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/cubeLottieView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:pivotX="0.5"
-            android:pivotY="0.5"
-            android:scaleX="2.0"
-            android:scaleY="2.0"
-            android:contentDescription="Cube video" />
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false"
+            app:lottie_rawRes="@raw/animation_cube_lottie" />
+
     </com.google.android.material.card.MaterialCardView>
-
-    <!-- LinearLayout for Filter Spinners (placed immediately below the video card) -->
-
-    <!-- Country TextView below the filters -->
-
-    <!-- Flag ImageView below the country text -->
 
     <LinearLayout
         android:id="@+id/linearLayoutFilters"
-        android:layout_width="386dp"
-        android:layout_height="97dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-
         android:orientation="vertical"
         android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.571"
+        app:layout_constraintTop_toBottomOf="@id/cubeCard"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cubeVideoCard">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Spinner for Difficulty -->
-
-        <!-- Spinner for Dish Type -->
         <Spinner
             android:id="@+id/spinnerDifficulty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/spinner_bg"
-            android:textAlignment="center"
-            android:fontFamily="@font/my_font"/>
+            android:minHeight="48dp"
+            android:textAlignment="center" />
 
         <Spinner
             android:id="@+id/spinnerTypeDish"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="48dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/spinner_bg"
-            android:textAlignment="center"
-            android:fontFamily="@font/my_font"/>
+            android:textAlignment="center" />
 
     </LinearLayout>
 
@@ -80,14 +66,12 @@
         android:id="@+id/textViewCountry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:text="Country will be shown here"
-        android:textAppearance="?attr/textAppearanceHeadline6"
         android:textColor="#FFFFFF"
-        android:fontFamily="@font/my_font"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutFilters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayoutFilters" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
         android:id="@+id/flagImageView"
@@ -96,9 +80,8 @@
         android:layout_marginTop="8dp"
         android:contentDescription="Country flag"
         android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintTop_toBottomOf="@id/textViewCountry"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewCountry" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

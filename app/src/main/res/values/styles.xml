@@ -15,5 +15,16 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
     </style>
+    <style name="ToolbarTitleAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:fontFamily">@font/my_font</item>
+    </style>
+    <style name="MyHeadlineStyle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/my_font</item>
+    </style>
+
+    <style name="MyBodyStyle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/my_font</item>
+    </style>
+
 
 </resources>
